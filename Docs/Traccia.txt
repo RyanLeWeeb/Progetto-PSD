@@ -1,0 +1,65 @@
+        Tracce Progetto
+Traccia 1: Sistema di Gestione degli Interventi di Manutenzione in
+un Condominio (Gruppo di 3 persone)
+        Obiettivo:
+Realizzare un programma in C per la gestione degli interventi di manutenzione in un
+condominio. Il sistema deve consentire di registrare richieste di intervento,
+assegnarle a tecnici, pianificarle nel tempo, monitorarne lo stato e produrre report
+sull’andamento delle attività.
+        Requisiti:
+● Inserimento di una nuova richiesta di intervento con:
+    ○ codice richiesta
+    ○ appartamento o area interessata
+    ○ tipologia di problema
+    ○ descrizione
+    ○ data della richiesta
+    ○ livello di urgenza
+    ○ stato della richiesta
+● Registrazione dei tecnici con:
+    ○ codice identificativo
+    ○ nome
+    ○ specializzazione
+    ○ disponibilità
+● Assegnazione di una richiesta a un tecnico compatibile
+● Pianificazione di un intervento con:
+    ○ data
+    ○ fascia oraria
+    ○ tecnico assegnato
+    ○ Verifica dei conflitti nella pianificazione
+● Aggiornamento dello stato:
+    ○ aperta
+    ○ pianificata
+    ○ in lavorazione
+    ○ conclusa
+    ○ annullata
+● Visualizzazione delle richieste:
+    ○ per stato
+    ○ per urgenza
+    ○ per tipologia
+    ○ per appartamento
+    ○ per tecnico
+● Ricerca per codice o tipologia
+● Visualizzazione dello storico degli interventi completati
+● Monitoraggio del carico di lavoro dei tecnici
+● Generazione di un report con:
+    ○ interventi per tipologia
+    ○ interventi aperti e chiusi
+    ○ tempo medio di completamento
+    ○ tecnico più attivo
+    ○ aree con più problemi
+Casi di Test:
+    ● Verifica della registrazione delle richieste
+    ● Test della registrazione dei tecnici
+    ● Verifica dell’assegnazione corretta
+    ● Test della pianificazione e gestione conflitti
+    ● Verifica aggiornamento stato
+    ● Test della ricerca e filtri
+    ● Verifica dello storico interventi
+    ● Test della generazione dei report
+Report:
+    ● Motivazione della Scelta dell'ADT: Illustrare perché specifici ADT sono stati
+    scelti per gestire richieste, tecnici, pianificazione, priorità e ricerche.
+    ● Progettazione: Descrivere l’architettura del sistema e l’interazione tra i moduli.
+    ● Specifica Sintattica e Semantica: Descrivere operazioni, pre/post condizioni,
+    input/output ed effetti collaterali.
+    ● Razionale dei Casi di Test
