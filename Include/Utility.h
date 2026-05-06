@@ -8,6 +8,4 @@ typedef struct {
     int anno;
 } Data;
 
-
-
 #endif
