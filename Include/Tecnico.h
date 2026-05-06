@@ -6,6 +6,11 @@ typedef struct Tecnico {
     int id;
     char nome[51];
     int specializzazione;
+    // 1. Hardware
+    // 2. Software
+    // 3. Reti
+    // 4. Sicurezza
+    // 5. Altro
     struct Tecnico *next;
 } Tecnico;
 
@@ -14,5 +19,8 @@ Tecnico* creaListaTecnico();
 
 // Aggiorna il file con i dati della lista di tecnici
 void aggiornaListaTecnico(Tecnico *listaTecnico);
+
+// Aggiunge un nuovo tecnico alla lista
+void aggiungiTecnico(Tecnico *listaTecnico);
 
 #endif

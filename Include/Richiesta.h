@@ -8,9 +8,22 @@ typedef struct {
     short tipologia;
     char descrizione[101];
     Data data;
-    bool ore[24];
+    char ore[24];
     short urgenza;
-    short stato;
+    short stato; 
+    // 0. aperta
+    // 1. pianificata
+    // 2. in lavorazione
+    // 3. conclusa
+    // 4. annullata
+    int id_tecnico;
+    Richiesta *next;
 } Richiesta;
+
+Richiesta *creaListaRichiesta();
+
+void aggiornaListaRichiesta(Richiesta *listaRichiesta);
+
+void aggiungiRichiesta(Richiesta *listaRichiesta);
 
 #endif
