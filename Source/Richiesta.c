@@ -67,9 +67,7 @@ void aggiornaListaRichiesta(Richiesta *listaRichiesta){
     fclose(fp);
 }
 
-// MANUALMENTE: luogo, tipologia, urgenza, descrizione
 // Il codice, lo stato, id_tecnico, data, e ore, vengono gestiti automaticamente
-
 // FUNZIONE DA MODIFICARE
 void aggiungiRichiesta(Richiesta *listaRichiesta){
     Richiesta *newNode = malloc(sizeof(Richiesta));
@@ -83,10 +81,10 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
     printf("Inserisci il luogo dell'intervento: ");
     scanf("%50s", newNode->luogo);
 
-    printf("Inserisci la tipologia dell'intervento (1-5): ");
+    printf("Inserisci la tipologia dell'intervento (1-5):\n1. Hardware\n2. Software\n3. Reti\n4. Sicurezza\n5. Altro\n");
     scanf("%hd", &newNode->tipologia);
 
-    printf("Inserisci l'urgenza dell'intervento (1-5): "); // NUMERI DA MODIFICARE
+    printf("Inserisci l'urgenza dell'intervento (1-3):\n1. Bassa\n2. Media\n3. Alta\n");
     scanf("%hd", &newNode->urgenza);
 
     printf("Inserisci la descrizione dell'intervento: ");
@@ -104,4 +102,83 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
         }
         current->next = newNode;
     }
+}
+
+void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, short nuovoStato){
+    Richiesta *current = listaRichiesta;
+    while (current != NULL) {
+        if (current->codice == codice) {
+            current->stato = nuovoStato;
+            return;
+        }
+        current = current->next;
+    }
+    printf("Richiesta con codice %d non trovata\n", codice);
+}
+
+void visualizzazioneRichiestePerStato(Richiesta *listaRichiesta, short stato) {
+    Richiesta *current = listaRichiesta;
+    while (current != NULL) {
+        if (current->stato == stato) {
+            printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Urgenza: %hd, ID Tecnico: %d\n",
+                   current->codice, current->luogo, current->tipologia, current->descrizione,
+                   current->data.giorno, current->data.mese, current->data.anno,
+                   current->ore, current->urgenza, current->id_tecnico);
+        }
+        current = current->next;
+    }
+}
+
+void visualizzazioneRichiestePerUrgenza(Richiesta *listaRichiesta, short urgenza) {
+    Richiesta *current = listaRichiesta;
+    while (current != NULL) {
+        if (current->urgenza == urgenza) {
+            printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                   current->codice, current->luogo, current->tipologia, current->descrizione,
+                   current->data.giorno, current->data.mese, current->data.anno,
+                   current->ore, current->stato, current->id_tecnico);
+        }
+        current = current->next;
+    }
+}
+
+void visualizzazioneRichiestePerTipologia(Richiesta *listaRichiesta, short tipologia) {
+    Richiesta *current = listaRichiesta;
+    while (current != NULL) {
+        if (current->tipologia == tipologia) {
+            printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                   current->codice, current->luogo, current->tipologia, current->descrizione,
+                   current->data.giorno, current->data.mese, current->data.anno,
+                   current->ore, current->stato, current->id_tecnico);
+        }
+        current = current->next;
+    }
+}
+
+void visualizzazioneRichiestePerLuogo(Richiesta *listaRichiesta, char luogo[51]) {
+    Richiesta *current = listaRichiesta;
+    while (current != NULL) {
+        if (strcmp(current->luogo, luogo) == 0) {
+            printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                   current->codice, current->luogo, current->tipologia, current->descrizione,
+                   current->data.giorno, current->data.mese, current->data.anno,
+                   current->ore, current->stato, current->id_tecnico);
+        }
+        current = current->next;
+    }
+}
+
+// Da modificare (?)
+void visualizzazioneRichiestePerTecnico(Richiesta *listaRichiesta, int id_tecnico) {
+    Richiesta *current = listaRichiesta;
+    while (current != NULL) {
+        if (current->id_tecnico == id_tecnico) {
+            printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd\n",
+                   current->codice, current->luogo, current->tipologia, current->descrizione,
+                   current->data.giorno, current->data.mese, current->data.anno,
+                   current->ore, current->stato);
+        }
+        current = current->next;
+    }
+
 }
