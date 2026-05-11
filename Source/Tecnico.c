@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tecnico.h"
+#include "Richiesta.h"
 
 Tecnico* creaListaTecnico(){
     FILE *fp = fopen("Liste/Tecnico.txt", "r");
@@ -64,11 +65,24 @@ void aggiungiTecnico(Tecnico *listaTecnico){
         printf("Errore: Memoria non allocabile\n");
         exit(1);
     }
+    
+    // srand(time(NULL)); // Inizializza il generatore di numeri casuali con il tempo attuale
+    int id = 100000 + rand() % 900000; // Genera un numero casuale tra 100000 e 999999
+
+    Tecnico *current = listaTecnico;
+    while (current != NULL) {
+        if (current->id == id) {
+            // Se l'ID generato esiste già, genera un nuovo ID
+            id = 100000 + rand() % 900000;
+            current = listaTecnico; // Ricomincia a controllare dall'inizio
+        } else {
+            current = current->next;
+        }
+    }
+    newNode->id = id; // Assegna l'ID univoco al nuovo tecnico
 
     printf("Inserisci il nome del tecnico: ");
     scanf("%50s", newNode->nome);
-    printf("Inserisci l'ID del tecnico: ");
-    scanf("%d", &newNode->id);
     printf("Inserisci la specializzazione del tecnico:\n1. Hardware\n2. Software\n3. Reti\n4. Sicurezza\n5. Altro\n");
     scanf("%d", &newNode->specializzazione);
     newNode->next = NULL;
@@ -82,4 +96,20 @@ void aggiungiTecnico(Tecnico *listaTecnico){
         }
         current->next = newNode;
     }
+}
+
+int orelavorate(Richiesta *listaRichieste, Tecnico *tecnico) {
+    Richiesta *current = listaRichieste;
+    int oreTotali = 0;
+
+    while (current != NULL) {
+        if (current->id_tecnico == tecnico->id) {
+            // Somma le ore lavorate per il tecnico
+            // Questo è un esempio semplificato - dovrai adattare la logica in base alla struttura dei dati
+            oreTotali += current->oraFine - current->oraInizio;
+        }
+        current = current->next;
+    }
+
+    return oreTotali;
 }

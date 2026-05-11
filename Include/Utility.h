@@ -8,4 +8,6 @@ typedef struct {
     int anno;
 } Data;
 
+short confrontaDate(Data d1, Data d2);
+
 #endif

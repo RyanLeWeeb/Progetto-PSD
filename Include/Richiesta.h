@@ -13,7 +13,8 @@ typedef struct {
     // 5. Altro
     char descrizione[101];
     Data data;
-    char ore[24];
+    int oraInizio;
+    int oraFine;
     short urgenza;
     // 1. Bassa
     // 2. Media
@@ -40,23 +41,11 @@ void aggiungiRichiesta(Richiesta *listaRichiesta);
 // Aggiorna lo stato di una richiesta in base al codice
 void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, short nuovoStato);
 
-// Visualizza le richieste filtrate per stato
-void visualizzazioneRichiestePerStato(Richiesta *listaRichiesta, short stato);
+// Ricerca le richieste in base a diversi criteri (1. Tipologia, 2. Codice Richiesta)
+void ricercaRichieste(Richiesta *listaRichiesta);
 
-// Visualizza le richieste filtrate per urgenza
-void visualizzazioneRichiestePerUrgenza(Richiesta *listaRichiesta, short urgenza);
-
-// Visualizza le richieste filtrate per tipologia
-void visualizzazioneRichiestePerTipologia(Richiesta *listaRichiesta, short tipologia);
-
-// Visualizza le richieste filtrate per luogo
-void visualizzazioneRichiestePerLuogo(Richiesta *listaRichiesta, char luogo[51]);
-
-// Visualizza le richieste filtrate per tecnico assegnato
-void visualizzazioneRichiestePerTecnico(Richiesta *listaRichiesta, int id_tecnico);
-
-// Visualizza lo storico degli interventi completati
-void visualizzaStoricoInterventiCompletati(Richiesta *listaRichiesta);
+// Genera un report con statistiche sugli interventi
+void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico);
 
 // Assegna un tecnico alla richiesta in base alla specializzazione/tipologia
 void assegnaTecnicoARichiesta(Richiesta *richiesta, Tecnico *listaTecnici);
