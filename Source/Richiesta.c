@@ -182,3 +182,105 @@ void visualizzazioneRichiestePerTecnico(Richiesta *listaRichiesta, int id_tecnic
     }
 
 }
+
+void visualizzaStoricoInterventiCompletati(Richiesta *listaRichiesta) {
+    printf("\n========== STORICO INTERVENTI COMPLETATI ==========\n");
+    
+    Richiesta *current = listaRichiesta;
+    int count = 0;
+    
+    while (current != NULL) {
+        if (current->stato == 3) { // 3 = conclusa
+            count++;
+            printf("\n[%d] Codice Richiesta: %d\n", count, current->codice);
+            printf("    Luogo: %s\n", current->luogo);
+            printf("    Tipologia: ");
+            switch(current->tipologia) {
+                case 1: printf("Hardware\n"); break;
+                case 2: printf("Software\n"); break;
+                case 3: printf("Reti\n"); break;
+                case 4: printf("Sicurezza\n"); break;
+                case 5: printf("Altro\n"); break;
+                default: printf("Non specificata\n");
+            }
+            printf("    Descrizione: %s\n", current->descrizione);
+            printf("    Data Richiesta: %02d/%02d/%04d\n", current->data.giorno, current->data.mese, current->data.anno);
+            printf("    Fascia Oraria: %s\n", current->ore);
+            printf("    Urgenza: ");
+            switch(current->urgenza) {
+                case 1: printf("Bassa\n"); break;
+                case 2: printf("Media\n"); break;
+                case 3: printf("Alta\n"); break;
+                default: printf("Non specificata\n");
+            }
+            printf("    ID Tecnico Assegnato: %d\n", current->id_tecnico);
+            printf("    ---\n");
+        }
+        current = current->next;
+    }
+    
+    if (count == 0) {
+        printf("Nessun intervento completato al momento.\n");
+    } else {
+        printf("\nTotale interventi completati: %d\n", count);
+    }
+    printf("===================================================\n\n");
+}
+
+void assegnaTecnicoARichiesta(Richiesta *richiesta, Tecnico *listaTecnici) {
+    if (richiesta == NULL || listaTecnici == NULL) {
+        printf("Errore: Richiesta o lista tecnici nulla\n");
+        return;
+    }
+    
+    Tecnico *tecnicoAssegnato = NULL;
+    Tecnico *current = listaTecnici;
+    int oreMinimoTrovate = INT_MAX;
+    
+    // Prima cerca un tecnico con specializzazione corrispondente
+    while (current != NULL) {
+        if (current->specializzazione == richiesta->tipologia) {
+            
+            // Seleziona il tecnico con meno ore lavorate (meno carico)
+            if (current->num_ore_lavorate < oreMinimoTrovate) {
+                tecnicoAssegnato = current;
+                oreMinimoTrovate = current->num_ore_lavorate;
+            }
+        }
+        current = current->next;
+    }
+    
+    // Se non trova specializzazione esatta, cerca un tecnico "Altro" (specializzazione 5)
+    if (tecnicoAssegnato == NULL) {
+        current = listaTecnici;
+        oreMinimoTrovate = INT_MAX;
+        while (current != NULL) {
+            if (current->specializzazione == 5) { // 5 = Altro
+                if (current->num_ore_lavorate < oreMinimoTrovate) {
+                    tecnicoAssegnato = current;
+                    oreMinimoTrovate = current->num_ore_lavorate;
+                }
+            }
+            current = current->next;
+        }
+    }
+    
+    // Assegna il tecnico se trovato
+    if (tecnicoAssegnato != NULL) {
+        richiesta->id_tecnico = tecnicoAssegnato->id;
+        printf("Tecnico assegnato: %s (ID: %d, Specializzazione: ", tecnicoAssegnato->nome, tecnicoAssegnato->id);
+        switch(tecnicoAssegnato->specializzazione) {
+            case 1: printf("Hardware"); break;
+            case 2: printf("Software"); break;
+            case 3: printf("Reti"); break;
+            case 4: printf("Sicurezza"); break;
+            case 5: printf("Altro"); break;
+            default: printf("Non specificata");
+        }
+        printf(")\n");
+        printf("Richiesta con codice %d assegnata con successo.\n", richiesta->codice);
+    } else {
+        printf("Errore: Nessun tecnico disponibile per l'assegnazione\n");
+        richiesta->id_tecnico = -1; // -1 indica tecnico non assegnato
+    }
+}

@@ -55,4 +55,10 @@ void visualizzazioneRichiestePerLuogo(Richiesta *listaRichiesta, char luogo[51])
 // Visualizza le richieste filtrate per tecnico assegnato
 void visualizzazioneRichiestePerTecnico(Richiesta *listaRichiesta, int id_tecnico);
 
+// Visualizza lo storico degli interventi completati
+void visualizzaStoricoInterventiCompletati(Richiesta *listaRichiesta);
+
+// Assegna un tecnico alla richiesta in base alla specializzazione/tipologia
+void assegnaTecnicoARichiesta(Richiesta *richiesta, Tecnico *listaTecnici);
+
 #endif
