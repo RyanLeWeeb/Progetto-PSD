@@ -2,9 +2,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <windows.h> // Per la funzione sleep()
-#include "Richiesta.h"
-#include "Tecnico.h"
-#include "Utility.h"
+#include "../Include/Richiesta.h"
+#include "../Include/Tecnico.h"
+#include "../Include/Utility.h"
 
 Richiesta *creaListaRichiesta(){
     FILE *fp = fopen("Liste/Richiesta.txt", "r");
@@ -24,12 +24,13 @@ Richiesta *creaListaRichiesta(){
             fclose(fp);
             exit(1);
         }
+        newNode->next = NULL;
 
         // Parse the line: codice-luogo-tipologia-descrizione-data-ore-urgenza-stato-id_tecnico
-        if (sscanf(line, "%d-%50[^-]-%hd-%100[^-]-%d/%d/%d-%24[^-]-%hd-%hd-%d",
+        if (sscanf(line, "%d-%50[^-]-%hd-%100[^-]-%d/%d/%d-%d-%d-%hd-%hd-%d",
                    &newNode->codice, newNode->luogo, &newNode->tipologia, newNode->descrizione,
                    &newNode->data.giorno, &newNode->data.mese, &newNode->data.anno,
-                   &newNode->oraInizio, &newNode->oraFine, &newNode->urgenza, &newNode->stato, &newNode->id_tecnico) == 10) {
+                   &newNode->oraInizio, &newNode->oraFine, &newNode->urgenza, &newNode->stato, &newNode->id_tecnico) == 12) {
             newNode->next = NULL;
             if (head == NULL) {
                 head = newNode;
@@ -57,14 +58,13 @@ void aggiornaListaRichiesta(Richiesta *listaRichiesta){
 
     Richiesta *current = listaRichiesta;
     while (current != NULL) {
-        fprintf(fp, "%d-%s-%hd-%s-%02d/%02d/%04d-%s-%hd-%hd-%d\n",
+        fprintf(fp, "%d-%s-%hd-%s-%02d/%02d/%04d-%d-%d-%hd-%hd-%d\n",
                 current->codice, current->luogo, current->tipologia, current->descrizione,
                 current->data.giorno, current->data.mese, current->data.anno,
                 current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
         current = current->next;
     }
 
-    free(current);
     fclose(fp);
 }
 
@@ -116,9 +116,9 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
         current->next = newNode;
     }
 
-    newNode->oraInizio = NULL; // Orario di inizio non ancora pianificato
-    newNode->oraFine = NULL; // Orario di fine non ancora pianificato
-    newNode->id_tecnico = NULL; // Tecnico non ancora assegnato
+    newNode->oraInizio = 0; // Orario di inizio non ancora pianificato
+    newNode->oraFine = 0; // Orario di fine non ancora pianificato
+    newNode->id_tecnico = 0; // Tecnico non ancora assegnato
 
     aggiornaListaRichiesta(listaRichiesta);
 }
@@ -195,7 +195,7 @@ void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *list
                     if (conflitto) {
                         printf("Errore: Il tecnico selezionato è già assegnato a un intervento nello stesso orario\n");
                         printf("Cambiare data dell'intervento? (1. Sì, 2. No)\n");
-                        if(scanf("%d", &choice) && choice == 1) {
+                        if(scanf("%hd", &choice) && choice == 1) {
                             printf("Inserire data dell'intervento (gg/mm/aaaa): ");
                             scanf("%d/%d/%d", &currentRichiesta->data.giorno, &currentRichiesta->data.mese, &currentRichiesta->data.anno);
                         }
@@ -258,7 +258,7 @@ void ricercaRichieste(Richiesta *listaRichiesta) {
                 scanf("%hd", &tipologia);
 
                 if (current->tipologia == tipologia) {
-                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
                         current->codice, current->luogo, current->tipologia, current->descrizione,
                         current->data.giorno, current->data.mese, current->data.anno,
                         current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
@@ -274,7 +274,7 @@ void ricercaRichieste(Richiesta *listaRichiesta) {
                 scanf("%d", &codice);
 
                 if (current->codice == codice) {
-                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
                         current->codice, current->luogo, current->tipologia, current->descrizione,
                         current->data.giorno, current->data.mese, current->data.anno,
                         current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
@@ -413,7 +413,7 @@ void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico) {
         currentTecnico = currentTecnico->next;
     }
 
-    printf("\n========== REPORT STATISTICHE INTERVENTI ==========%\n");
+    printf("\n========== REPORT STATISTICHE INTERVENTI ==========" "\n");
     printf("Interventi per tipologia:\n");
     for (int i = 0; i < NUM_SPECIALIZZAZIONI; i++) {
         printf("  %s: %d\n", tipologiaNomi[i], tipologiaCount[i]);
@@ -468,7 +468,7 @@ void visualizzazioneRichieste(Richiesta *lista){
     switch (choice){
         case 1:
             printf("Visualizzazione delle richieste per tipologia...\n");    
-            sleep(2); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
+            Sleep(2000); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
 
             short tipologia_corrente = 1;
             while (tipologia_corrente <= NUM_SPECIALIZZAZIONI){
@@ -477,7 +477,7 @@ void visualizzazioneRichieste(Richiesta *lista){
                     // Si passa per ogni tipologia, stampando ogni tipo in ordine: 1. Hardware, 2. Software, 3. Reti, 4. Sicurezza, 5. Altro
 
                     if (current->tipologia == tipologia_corrente) {
-                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
                             current->codice, current->luogo, current->tipologia, current->descrizione,
                             current->data.giorno, current->data.mese, current->data.anno,
                             current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
@@ -490,7 +490,7 @@ void visualizzazioneRichieste(Richiesta *lista){
         break;
         case 2:
             printf("Visualizzazione delle richieste per stato, saltando le richieste concluse e annullate...\n");    
-            sleep(2); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
+            Sleep(2000); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
 
             short stato_corrente = 0; // Gli stati iniziano da 0 (aperta)
             while (stato_corrente <= 2){ // "2. in lavorazione" è l'ultimo stato che vogliamo visualizzare, saltando "3. conclusa" e "4. annullata"
@@ -502,7 +502,7 @@ void visualizzazioneRichieste(Richiesta *lista){
                     */
 
                     if (current->stato == stato_corrente) {
-                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
                             current->codice, current->luogo, current->tipologia, current->descrizione,
                             current->data.giorno, current->data.mese, current->data.anno,
                             current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
@@ -514,14 +514,14 @@ void visualizzazioneRichieste(Richiesta *lista){
         break;
         case 3:
             printf("Visualizzazione delle richieste per urgenza...\n");    
-            sleep(2); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
+            Sleep(2000); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
 
             short urgenza_corrente = 3; // Si parte dall'urgenza più alta (3. Alta) e si scende fino alla più bassa (1. Bassa)
             while (urgenza_corrente >= 1){
                 while (current != NULL) {
 
                     if (current->urgenza == urgenza_corrente) {
-                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
                             current->codice, current->luogo, current->tipologia, current->descrizione,
                             current->data.giorno, current->data.mese, current->data.anno,
                             current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
@@ -533,7 +533,7 @@ void visualizzazioneRichieste(Richiesta *lista){
         break;
         case 4:
             printf("Visualizzazione delle richieste per luogo...\n");    
-            sleep(2); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
+            Sleep(2000); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
 
             char luogo_corrente[51];
             printf("Inserisci il luogo da visualizzare: ");
@@ -543,7 +543,7 @@ void visualizzazioneRichieste(Richiesta *lista){
 
             while (current != NULL) {
                 if (strcmp(current->luogo, luogo_corrente) == 0 && current->stato != 3 && current->stato != 4) { // Stato 3 = conclusa, Stato 4 = annullata
-                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
                         current->codice, current->luogo, current->tipologia, current->descrizione,
                         current->data.giorno, current->data.mese, current->data.anno,
                         current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
@@ -553,7 +553,7 @@ void visualizzazioneRichieste(Richiesta *lista){
         break;
         case 5:
             printf("Visualizzazione delle richieste per tecnico...\n");    
-            sleep(2); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
+            Sleep(2000); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
 
             int id_tecnico_corrente;
             printf("Inserisci l'ID del tecnico da visualizzare: ");
@@ -563,7 +563,7 @@ void visualizzazioneRichieste(Richiesta *lista){
 
             while (current != NULL) {
                 if (current->id_tecnico == id_tecnico_corrente && current->stato != 3 && current->stato != 4) { // Stato 3 = conclusa, Stato 4 = annullata
-                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
                         current->codice, current->luogo, current->tipologia, current->descrizione,
                         current->data.giorno, current->data.mese, current->data.anno,
                         current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "tecnico.h"
-#include "Richiesta.h"
+#include "../Include/Tecnico.h"
+#include "../Include/Richiesta.h"
 
 Tecnico* creaListaTecnico(){
     FILE *fp = fopen("Liste/Tecnico.txt", "r");

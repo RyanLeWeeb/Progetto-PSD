@@ -2,6 +2,8 @@
 #define TECNICO_H
 #include "Utility.h"
 
+typedef struct Richiesta Richiesta;
+
 #define NUM_SPECIALIZZAZIONI 5
 
 typedef struct Tecnico {

@@ -1,8 +1,11 @@
 #ifndef RICHIESTA_H
 #define RICHIESTA_H
-#include "utility.h"
 
-typedef struct {
+#include "Utility.h"
+
+typedef struct Tecnico Tecnico;
+
+typedef struct Richiesta {
     int codice;
     char luogo[51];
     short tipologia; // SE MODIFICATO: modificare NUM_SPECIALIZZAZIONI in Tecnico.h
@@ -26,7 +29,7 @@ typedef struct {
     // 3. conclusa
     // 4. annullata
     int id_tecnico;
-    Richiesta *next;
+    struct Richiesta *next;
 } Richiesta;
 
 // Crea la lista delle richieste leggendo dal file "Richiesta.txt"
