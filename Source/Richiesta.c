@@ -119,6 +119,8 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
     newNode->oraInizio = NULL; // Orario di inizio non ancora pianificato
     newNode->oraFine = NULL; // Orario di fine non ancora pianificato
     newNode->id_tecnico = NULL; // Tecnico non ancora assegnato
+
+    aggiornaListaRichiesta(listaRichiesta);
 }
 
 void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *listaTecnici) {
@@ -234,6 +236,7 @@ void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *list
             currentRichiesta = currentRichiesta->next;
         }
     }
+    aggiornaListaRichiesta(listaRichiesta);
 }
 
 // 1. Tipologia

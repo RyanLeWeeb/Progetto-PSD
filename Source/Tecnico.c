@@ -96,6 +96,7 @@ void aggiungiTecnico(Tecnico *listaTecnico){
         }
         current->next = newNode;
     }
+    aggiornaListaTecnico(listaTecnico);
 }
 
 int orelavorate(Richiesta *listaRichieste, Tecnico *tecnico) {
