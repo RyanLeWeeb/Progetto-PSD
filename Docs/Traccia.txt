@@ -47,6 +47,9 @@ sull’andamento delle attività.
     ○ tempo medio di completamento
     ○ tecnico più attivo
     ○ aree con più problemi
+
+// MANCA TUTTA LA PARTE SOTTO
+
 Casi di Test:
     ● Verifica della registrazione delle richieste
     ● Test della registrazione dei tecnici

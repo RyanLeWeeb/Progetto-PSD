@@ -117,3 +117,14 @@ int orelavorate(Richiesta *listaRichieste, Tecnico *tecnico) {
 
     return oreTotali;
 }
+
+void stampaOreLavorateTecnici(Tecnico *listaTecnico, Richiesta *listaRichieste){
+    Tecnico *currentTecnico = listaTecnico;
+    
+    printf("Ore lavorate da ogni tecnico:\n");
+    while (currentTecnico != NULL) {
+        int ore = orelavorate(listaRichieste, currentTecnico);
+        printf("Tecnico ID: %d, Nome: %s, Ore lavorate: %d\n", currentTecnico->id, currentTecnico->nome, ore);
+        currentTecnico = currentTecnico->next;
+    }
+}

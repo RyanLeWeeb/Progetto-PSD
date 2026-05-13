@@ -29,4 +29,7 @@ void aggiungiTecnico(Tecnico *listaTecnico);
 // Calcola le ore lavorate da un tecnico sommando le ore delle richieste a lui assegnate
 int orelavorate(Richiesta *listaRichieste, Tecnico *tecnico);
 
+// Stampa le ore lavorate da ogni tecnico
+void stampaOreLavorateTecnici(Tecnico *listaTecnico, Richiesta *listaRichieste);
+
 #endif
