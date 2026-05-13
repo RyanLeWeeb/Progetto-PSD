@@ -39,17 +39,16 @@ void aggiornaListaRichiesta(Richiesta *listaRichiesta);
 void aggiungiRichiesta(Richiesta *listaRichiesta);
 
 // Aggiorna lo stato di una richiesta in base al codice
-void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, short nuovoStato);
+void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *listaTecnici);
 
 // Ricerca le richieste in base a diversi criteri (1. Tipologia, 2. Codice Richiesta)
 void ricercaRichieste(Richiesta *listaRichiesta);
 
 // Genera un report con statistiche sugli interventi
-// void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico);
+// DA RICONTROLLARE
+void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico);
 
-// Assegna un tecnico alla richiesta in base alla specializzazione/tipologia
-void assegnaTecnicoARichiesta(Richiesta *richiesta, Tecnico *listaTecnici);
-
+// Visualizza le richieste in base a diversi criteri (1. Tipologia, 2. Stato, 3. Urgenza, 4. Luogo, 5. Tecnico)
 void visualizzazioneRichieste(Richiesta *lista);
 
 #endif

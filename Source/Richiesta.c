@@ -68,7 +68,6 @@ void aggiornaListaRichiesta(Richiesta *listaRichiesta){
     fclose(fp);
 }
 
-// Manca ID_tecnico
 void aggiungiRichiesta(Richiesta *listaRichiesta){
     Richiesta *newNode = malloc(sizeof(Richiesta));
     if (newNode == NULL) {
@@ -107,11 +106,6 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
     fgets(newNode->descrizione, sizeof(newNode->descrizione), stdin);
     newNode->descrizione[strcspn(newNode->descrizione, "\n")] = '\0';
 
-    printf("Inserire data dell'intervento (gg/mm/aaaa): ");
-    scanf("%d/%d/%d", &newNode->data.giorno, &newNode->data.mese, &newNode->data.anno);
-
-    // gestione automatica di codice, id_tecnico
-
     if (listaRichiesta == NULL) {
         listaRichiesta = newNode;
     } else {
@@ -121,18 +115,125 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
         }
         current->next = newNode;
     }
+
+    newNode->oraInizio = NULL; // Orario di inizio non ancora pianificato
+    newNode->oraFine = NULL; // Orario di fine non ancora pianificato
+    newNode->id_tecnico = NULL; // Tecnico non ancora assegnato
 }
 
-void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, short nuovoStato){
-    Richiesta *current = listaRichiesta;
-    while (current != NULL) {
-        if (current->codice == codice) {
-            current->stato = nuovoStato;
-            return;
+void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *listaTecnici) {
+    Richiesta *currentRichiesta = listaRichiesta;
+    Tecnico *currentTecnici = listaTecnici;
+
+    while(currentRichiesta != NULL) {
+        if (currentRichiesta->codice == codice) {
+            short choice;
+            printf("Quale nuovo stato vuoi assegnare alla richiesta?\n");
+            printf("1. Pianificata\n2. In lavorazione\n3. Conclusa\n4. Annullata\n");
+            scanf("%hd", &choice);
+            switch (choice){
+                case 1:
+                    if(currentRichiesta->stato != 0){ // Si può passare da "aperta" a "pianificata"
+                        printf("Errore: Lo stato può essere aggiornato a Pianificata solo se la richiesta è attualmente Aperta\n");
+                        return;
+                    }
+                    while(currentTecnici != NULL)
+                    {
+                        if (currentTecnici->specializzazione == currentRichiesta->tipologia) {
+                            // Stampa le informazioni di ogni tecnico con specializzazione corrispondente alla tipologia della richiesta
+                            printf("Tecnico ID: %d, Nome: %s\n", currentTecnici->id, currentTecnici->nome);
+                            break;
+                        }
+                        currentTecnici = currentTecnici->next;
+                    }
+
+                    back:
+                    printf("Inserire l'ID del tecnico da assegnare alla richiesta: ");
+                    int id_tecnico;
+                    scanf("%d", &id_tecnico);
+
+                    // Verifica che l'ID inserito corrisponda a un tecnico con specializzazione corrispondente alla tipologia della richiesta
+                    Tecnico *tempTecnico = listaTecnici;
+                    int idValido = 0;
+                    while (tempTecnico != NULL) {
+                        if (tempTecnico->id == id_tecnico && tempTecnico->specializzazione == currentRichiesta->tipologia) {
+                            idValido = 1;
+                            break;
+                        }
+                        tempTecnico = tempTecnico->next;
+                    }
+                    if (!idValido) {
+                        printf("Errore: L'ID del tecnico inserito non è valido o non corrisponde alla specializzazione della richiesta\n");
+                        goto back;
+                    }
+
+                    backtwo:
+                    printf("Inserire l'ora di inizio dell'intervento (0-23): ");
+                    scanf("%d", &currentRichiesta->oraInizio);
+
+                    printf("Inserire l'ora di fine dell'intervento (0-23): ");
+                    scanf("%d", &currentRichiesta->oraFine);
+
+                    Richiesta *tempRichiesta = listaRichiesta;
+                    int conflitto = 0;
+                    while (tempRichiesta != NULL) {
+                        if (tempRichiesta != currentRichiesta &&
+                            confrontaDate(tempRichiesta->data, currentRichiesta->data) == 0 &&
+                            sonoOrariSovrapposti(tempRichiesta->oraInizio, tempRichiesta->oraFine,
+                                                 currentRichiesta->oraInizio, currentRichiesta->oraFine) &&
+                            tempRichiesta->id_tecnico == id_tecnico && tempRichiesta->stato != 4 && tempRichiesta->stato != 5 && tempRichiesta->stato != 0) { 
+                                // Esclude richieste annullate, concluse, o aperte (non ancora pianificate)
+                            conflitto = 1;
+                            break;
+                        }
+                        tempRichiesta = tempRichiesta->next;
+                    }
+
+                    // Se c'è un conflitto, avvisa l'utente e chiedi se vuole cambiare la data dell'intervento
+                    if (conflitto) {
+                        printf("Errore: Il tecnico selezionato è già assegnato a un intervento nello stesso orario\n");
+                        printf("Cambiare data dell'intervento? (1. Sì, 2. No)\n");
+                        if(scanf("%d", &choice) && choice == 1) {
+                            printf("Inserire data dell'intervento (gg/mm/aaaa): ");
+                            scanf("%d/%d/%d", &currentRichiesta->data.giorno, &currentRichiesta->data.mese, &currentRichiesta->data.anno);
+                        }
+                        goto backtwo;
+                    }
+
+                    currentRichiesta->stato = 1; // Pianificata
+                    printf("Stato aggiornato a Pianificata\n");
+                break;
+                case 2:
+                    if(currentRichiesta->stato != 1){ // Si può passare da "pianificata" a "in lavorazione"
+                        printf("Errore: Lo stato può essere aggiornato a In lavorazione solo se la richiesta è attualmente Pianificata\n");
+                        return;
+                    }
+                    currentRichiesta->stato = 2; // In lavorazione
+                    printf("Stato aggiornato a In lavorazione\n");
+                break;
+                case 3:
+                    if(currentRichiesta->stato != 2){ // Si può passare da "in lavorazione" a "conclusa"
+                        printf("Errore: Lo stato può essere aggiornato a Conclusa solo se la richiesta è attualmente In lavorazione\n");
+                        return;
+                    }
+                    currentRichiesta->stato = 3; // Conclusa
+                    printf("Stato aggiornato a Conclusa\n");
+                break;
+                case 4:
+                    if(currentRichiesta->stato != 3){ // Si può passare da "conclusa" a "annullata"
+                        printf("Errore: Lo stato può essere aggiornato a Annullata solo se la richiesta è attualmente Conclusa\n");
+                        return;
+                    }
+                    currentRichiesta->stato = 4; // Annullata
+                    printf("Stato aggiornato a Annullata\n");
+                break;
+                default:
+                    printf("Scelta non valida\n");
+            }
+        }else{
+            currentRichiesta = currentRichiesta->next;
         }
-        current = current->next;
     }
-    printf("Richiesta con codice %d non trovata\n", codice);
 }
 
 // 1. Tipologia
@@ -228,167 +329,129 @@ void visualizzaStoricoInterventiCompletati(Richiesta *listaRichiesta) {
     printf("===================================================\n\n");
 }
 
-void assegnaTecnicoARichiesta(Richiesta *richiesta, Tecnico *listaTecnici) {
-    if (richiesta == NULL || listaTecnici == NULL) {
-        printf("Errore: Richiesta o lista tecnici nulla\n");
-        return;
-    }
-    
-    Tecnico *tecnicoAssegnato = NULL;
-    Tecnico *current = listaTecnici;
-    int oreMinimoTrovate = INT_MAX;
-    
-    // Prima cerca un tecnico con specializzazione corrispondente
-    while (current != NULL) {
-        if (current->specializzazione == richiesta->tipologia) {
-            
-            // Seleziona il tecnico con meno ore lavorate (meno carico)
-            if (current->num_ore_lavorate < oreMinimoTrovate) {
-                tecnicoAssegnato = current;
-                oreMinimoTrovate = current->num_ore_lavorate;
-            }
-        }
-        current = current->next;
-    }
-    
-    // Se non trova specializzazione esatta, cerca un tecnico "Altro" (specializzazione 5)
-    if (tecnicoAssegnato == NULL) {
-        current = listaTecnici;
-        oreMinimoTrovate = INT_MAX;
-        while (current != NULL) {
-            if (current->specializzazione == 5) { // 5 = Altro
-                if (current->num_ore_lavorate < oreMinimoTrovate) {
-                    tecnicoAssegnato = current;
-                    oreMinimoTrovate = current->num_ore_lavorate;
-                }
-            }
-            current = current->next;
-        }
-    }
-    
-    // Assegna il tecnico se trovato
-    if (tecnicoAssegnato != NULL) {
-        richiesta->id_tecnico = tecnicoAssegnato->id;
-        printf("Tecnico assegnato: %s (ID: %d, Specializzazione: ", tecnicoAssegnato->nome, tecnicoAssegnato->id);
-        switch(tecnicoAssegnato->specializzazione) {
-            case 1: printf("Hardware"); break;
-            case 2: printf("Software"); break;
-            case 3: printf("Reti"); break;
-            case 4: printf("Sicurezza"); break;
-            case 5: printf("Altro"); break;
-            default: printf("Non specificata");
-        }
-        printf(")\n");
-        printf("Richiesta con codice %d assegnata con successo.\n", richiesta->codice);
-    } else {
-        printf("Errore: Nessun tecnico disponibile per l'assegnazione\n");
-        richiesta->id_tecnico = -1; // -1 indica tecnico non assegnato
-    }
-}
+void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico) {
+    const char *tipologiaNomi[NUM_SPECIALIZZAZIONI] = {"Hardware", "Software", "Reti", "Sicurezza", "Altro"};
+    int tipologiaCount[NUM_SPECIALIZZAZIONI] = {0};
+    int statoCount[5] = {0};
+    int completatiCount = 0;
+    int totalCompletionTime = 0;
 
-/* void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico) {
-    printf("\n========== REPORT STATISTICHE INTERVENTI ==========\n");
-    
-    // Contatori per tipologia
-    int countTipologia[6] = {0}; // Indice 1-5
-    
-    // Contatori per stato
-    int aperti = 0, chiusi = 0;
-    
-    // Per tempo medio: assumiamo che ogni intervento completato richieda un numero fisso di ore, 
-    // o calcoliamo media delle ore lavorate dei tecnici
-    int totaleOre = 0, numTecnici = 0;
-    Tecnico *tec = listaTecnico;
-    while (tec != NULL) {
-        totaleOre += tec->num_ore_lavorate;
-        numTecnici++;
-        tec = tec->next;
-    }
-    float tempoMedio = numTecnici > 0 ? (float)totaleOre / numTecnici : 0;
-    
-    // Tecnico più attivo
-    Tecnico *tecnicoAttivo = NULL;
-    int maxOre = -1;
-    tec = listaTecnico;
-    while (tec != NULL) {
-        if (tec->num_ore_lavorate > maxOre) {
-            maxOre = tec->num_ore_lavorate;
-            tecnicoAttivo = tec;
-        }
-        tec = tec->next;
-    }
-    
-    // Aree con più problemi: usiamo una mappa semplice, assumiamo max 100 aree uniche
-    char aree[100][51];
-    int countAree[100] = {0};
-    int numAree = 0;
-    
+    #define MAX_AREE 100
+    char aree[MAX_AREE][51] = {{0}};
+    int areeCount[MAX_AREE] = {0};
+    int areeSize = 0;
+
     Richiesta *current = listaRichiesta;
     while (current != NULL) {
-        // Tipologia
-        if (current->tipologia >= 1 && current->tipologia <= 5) {
-            countTipologia[current->tipologia]++;
+        if (current->tipologia >= 1 && current->tipologia <= NUM_SPECIALIZZAZIONI) {
+            tipologiaCount[current->tipologia - 1]++;
         }
-        
-        // Stato
-        if (current->stato >= 0 && current->stato <= 2) {
-            aperti++;
-        } else if (current->stato == 3 || current->stato == 4) {
-            chiusi++;
+
+        if (current->stato >= 0 && current->stato <= 4) {
+            statoCount[current->stato]++;
         }
-        
-        // Aree
-        int found = 0;
-        for (int i = 0; i < numAree; i++) {
-            if (strcmp(aree[i], current->luogo) == 0) {
-                countAree[i]++;
-                found = 1;
-                break;
+
+        if (current->stato == 3) {
+            int durata = current->oraFine - current->oraInizio;
+            if (durata > 0) {
+                totalCompletionTime += durata;
+            }
+            completatiCount++;
+        }
+
+        if (current->luogo[0] != '\0') {
+            int found = 0;
+            for (int i = 0; i < areeSize; i++) {
+                if (strcmp(aree[i], current->luogo) == 0) {
+                    areeCount[i]++;
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found && areeSize < MAX_AREE) {
+                strncpy(aree[areeSize], current->luogo, sizeof(aree[areeSize]) - 1);
+                aree[areeSize][sizeof(aree[areeSize]) - 1] = '\0';
+                areeCount[areeSize] = 1;
+                areeSize++;
             }
         }
-        if (!found && numAree < 100) {
-            strcpy(aree[numAree], current->luogo);
-            countAree[numAree] = 1;
-            numAree++;
-        }
-        
+
         current = current->next;
     }
-    
-    // Trova area con più problemi
-    char areaMax[51] = "";
-    int maxProblemi = 0;
-    for (int i = 0; i < numAree; i++) {
-        if (countAree[i] > maxProblemi) {
-            maxProblemi = countAree[i];
-            strcpy(areaMax, aree[i]);
+
+    int maxAreeCount = 0;
+    for (int i = 0; i < areeSize; i++) {
+        if (areeCount[i] > maxAreeCount) {
+            maxAreeCount = areeCount[i];
         }
     }
-    
-    // Output del report
-    printf("Interventi per tipologia:\n");
-    printf("  Hardware: %d\n", countTipologia[1]);
-    printf("  Software: %d\n", countTipologia[2]);
-    printf("  Reti: %d\n", countTipologia[3]);
-    printf("  Sicurezza: %d\n", countTipologia[4]);
-    printf("  Altro: %d\n", countTipologia[5]);
-    
-    printf("\nInterventi aperti: %d\n", aperti);
-    printf("Interventi chiusi: %d\n", chiusi);
-    
-    printf("\nTempo medio di completamento: %.2f ore per tecnico\n", tempoMedio);
-    
-    if (tecnicoAttivo != NULL) {
-        printf("\nTecnico più attivo: %s (ID: %d) con %d ore lavorate\n", tecnicoAttivo->nome, tecnicoAttivo->id, tecnicoAttivo->num_ore_lavorate);
-    } else {
-        printf("\nNessun tecnico trovato\n");
-    }
-    
-    printf("\nArea con più problemi: %s (%d interventi)\n", areaMax, maxProblemi);
-    
-    printf("===================================================\n\n");
-} */
 
+    int maxOreTecnico = 0;
+    Tecnico *tecnicoAttivo = NULL;
+    Tecnico *currentTecnico = listaTecnico;
+    while (currentTecnico != NULL) {
+        int oreTotali = 0;
+        Richiesta *richiesta = listaRichiesta;
+        while (richiesta != NULL) {
+            if (richiesta->id_tecnico == currentTecnico->id && richiesta->stato == 3) {
+                int durata = richiesta->oraFine - richiesta->oraInizio;
+                if (durata > 0) {
+                    oreTotali += durata;
+                }
+            }
+            richiesta = richiesta->next;
+        }
+
+        currentTecnico->num_ore_lavorate = oreTotali;
+        if (oreTotali > maxOreTecnico || tecnicoAttivo == NULL) {
+            maxOreTecnico = oreTotali;
+            tecnicoAttivo = currentTecnico;
+        }
+        currentTecnico = currentTecnico->next;
+    }
+
+    printf("\n========== REPORT STATISTICHE INTERVENTI ==========%\n");
+    printf("Interventi per tipologia:\n");
+    for (int i = 0; i < NUM_SPECIALIZZAZIONI; i++) {
+        printf("  %s: %d\n", tipologiaNomi[i], tipologiaCount[i]);
+    }
+
+    int aperteCount = statoCount[0] + statoCount[1] + statoCount[2];
+    int chiuseCount = statoCount[3] + statoCount[4];
+    printf("\nInterventi aperti: %d\n", aperteCount);
+    printf("Interventi chiusi: %d\n", chiuseCount);
+    printf("  - Aperte: %d\n", statoCount[0]);
+    printf("  - Pianificate: %d\n", statoCount[1]);
+    printf("  - In lavorazione: %d\n", statoCount[2]);
+    printf("  - Concluse: %d\n", statoCount[3]);
+    printf("  - Annullate: %d\n", statoCount[4]);
+
+    if (completatiCount > 0) {
+        double media = (double)totalCompletionTime / completatiCount;
+        printf("\nTempo medio di completamento (ore per intervento concluso): %.2f\n", media);
+    } else {
+        printf("\nTempo medio di completamento: nessun intervento concluso\n");
+    }
+
+    if (tecnicoAttivo != NULL) {
+        printf("\nTecnico piu\' attivo: %s (ID %d) con %d ore lavorate\n",
+               tecnicoAttivo->nome, tecnicoAttivo->id, maxOreTecnico);
+    } else {
+        printf("\nTecnico piu\' attivo: nessun tecnico trovato\n");
+    }
+
+    if (maxAreeCount > 0) {
+        printf("\nAree con piu\' problemi (numero di richieste):\n");
+        for (int i = 0; i < areeSize; i++) {
+            if (areeCount[i] == maxAreeCount) {
+                printf("  %s: %d\n", aree[i], areeCount[i]);
+            }
+        }
+    } else {
+        printf("\nAree con piu\' problemi: nessuna richiesta registrata\n");
+    }
+    printf("===================================================\n\n");
+}
 
 // per visualizzare le richieste in base a diversi criteri (1. Tipologia, 2. Stato, 3. Urgenza, 4. Luogo, 5. Tecnico)
 void visualizzazioneRichieste(Richiesta *lista){

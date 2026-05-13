@@ -104,9 +104,12 @@ int orelavorate(Richiesta *listaRichieste, Tecnico *tecnico) {
 
     while (current != NULL) {
         if (current->id_tecnico == tecnico->id) {
-            // Somma le ore lavorate per il tecnico
-            // Questo è un esempio semplificato - dovrai adattare la logica in base alla struttura dei dati
-            oreTotali += current->oraFine - current->oraInizio;
+            if (current->stato == 3) { // Considera solo le richieste concluse
+                int durata = current->oraFine - current->oraInizio;
+                if (durata > 0) {
+                    oreTotali += durata; // Somma le ore lavorate per il tecnico
+                }
+            }
         }
         current = current->next;
     }
