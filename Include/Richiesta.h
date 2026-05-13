@@ -5,7 +5,7 @@
 typedef struct {
     int codice;
     char luogo[51];
-    short tipologia;
+    short tipologia; // SE MODIFICATO: modificare NUM_SPECIALIZZAZIONI in Tecnico.h
     // 1. Hardware
     // 2. Software
     // 3. Reti
@@ -45,9 +45,11 @@ void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, short nuovoSt
 void ricercaRichieste(Richiesta *listaRichiesta);
 
 // Genera un report con statistiche sugli interventi
-void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico);
+// void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico);
 
 // Assegna un tecnico alla richiesta in base alla specializzazione/tipologia
 void assegnaTecnicoARichiesta(Richiesta *richiesta, Tecnico *listaTecnici);
+
+void visualizzazioneRichieste(Richiesta *lista);
 
 #endif

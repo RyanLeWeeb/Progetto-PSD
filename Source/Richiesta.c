@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h> // Per la funzione sleep()
 #include "Richiesta.h"
 #include "Tecnico.h"
 #include "Utility.h"
@@ -140,7 +141,7 @@ void ricercaRichieste(Richiesta *listaRichiesta) {
     Richiesta *current = listaRichiesta;
     short choice;
 
-    printf("Quale criterio vuoi utilizzare per visualizzare le richieste?\n");
+    printf("Quale criterio vuoi utilizzare per ricercare le richieste?\n");
     printf("1. Tipologia\n2. Codice Richiesta\n");
     scanf("%hd", &choice);
 
@@ -148,7 +149,7 @@ void ricercaRichieste(Richiesta *listaRichiesta) {
         case 1:
             while (current != NULL) {
 
-                printf("Quale tipologia vuoi visualizzare?\n(1. Hardware, 2. Software, 3. Reti, 4. Sicurezza, 5. Altro)\n");
+                printf("Quale tipologia vuoi ricercare?\n(1. Hardware, 2. Software, 3. Reti, 4. Sicurezza, 5. Altro)\n");
                 short tipologia;
                 scanf("%hd", &tipologia);
 
@@ -164,7 +165,7 @@ void ricercaRichieste(Richiesta *listaRichiesta) {
         case 2:
             while (current != NULL) {
 
-                printf("Inserisci il codice della richiesta da visualizzare: ");
+                printf("Inserisci il codice della richiesta da ricercare: ");
                 int codice;
                 scanf("%d", &codice);
 
@@ -387,3 +388,124 @@ void assegnaTecnicoARichiesta(Richiesta *richiesta, Tecnico *listaTecnici) {
     
     printf("===================================================\n\n");
 } */
+
+
+// per visualizzare le richieste in base a diversi criteri (1. Tipologia, 2. Stato, 3. Urgenza, 4. Luogo, 5. Tecnico)
+void visualizzazioneRichieste(Richiesta *lista){
+    Richiesta *current = listaRichiesta;
+    short choice;
+
+    printf("Quale criterio vuoi utilizzare per visualizzare le richieste?\n");
+    printf("1. Tipologia\n2. Stato\n3. Urgenza\n4. Luogo\n5. Tecnico\n");
+    scanf("%hd", &choice);
+
+    switch (choice){
+        case 1:
+            printf("Visualizzazione delle richieste per tipologia...\n");    
+            sleep(2); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
+
+            short tipologia_corrente = 1;
+            while (tipologia_corrente <= NUM_SPECIALIZZAZIONI){
+                while (current != NULL) {
+
+                    // Si passa per ogni tipologia, stampando ogni tipo in ordine: 1. Hardware, 2. Software, 3. Reti, 4. Sicurezza, 5. Altro
+
+                    if (current->tipologia == tipologia_corrente) {
+                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                            current->codice, current->luogo, current->tipologia, current->descrizione,
+                            current->data.giorno, current->data.mese, current->data.anno,
+                            current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
+                    }
+                    current = current->next;
+                }
+                tipologia_corrente += 1;
+            }
+
+        break;
+        case 2:
+            printf("Visualizzazione delle richieste per stato, saltando le richieste concluse e annullate...\n");    
+            sleep(2); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
+
+            short stato_corrente = 0; // Gli stati iniziano da 0 (aperta)
+            while (stato_corrente <= 2){ // "2. in lavorazione" è l'ultimo stato che vogliamo visualizzare, saltando "3. conclusa" e "4. annullata"
+                while (current != NULL) {
+
+                    /*
+                    Si passa per ogni stato, stampando ogni tipo in ordine: 0. aperta, 1. pianificata, 2. in lavorazione
+                    saltando però le richieste con stato 3. conclusa e 4. annullata, che vengono visualizzate in un report a parte
+                    */
+
+                    if (current->stato == stato_corrente) {
+                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                            current->codice, current->luogo, current->tipologia, current->descrizione,
+                            current->data.giorno, current->data.mese, current->data.anno,
+                            current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
+                    }
+                    current = current->next;
+                }
+                stato_corrente += 1;
+            }
+        break;
+        case 3:
+            printf("Visualizzazione delle richieste per urgenza...\n");    
+            sleep(2); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
+
+            short urgenza_corrente = 3; // Si parte dall'urgenza più alta (3. Alta) e si scende fino alla più bassa (1. Bassa)
+            while (urgenza_corrente >= 1){
+                while (current != NULL) {
+
+                    if (current->urgenza == urgenza_corrente) {
+                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                            current->codice, current->luogo, current->tipologia, current->descrizione,
+                            current->data.giorno, current->data.mese, current->data.anno,
+                            current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
+                    }
+                    current = current->next;
+                }
+                urgenza_corrente -= 1;
+            }
+        break;
+        case 4:
+            printf("Visualizzazione delle richieste per luogo...\n");    
+            sleep(2); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
+
+            char luogo_corrente[51];
+            printf("Inserisci il luogo da visualizzare: ");
+            scanf("%50s", luogo_corrente);
+
+                // Si visualizzano tutte le richieste per il luogo inserito, saltando le richieste concluse oppure annullate.
+
+            while (current != NULL) {
+                if (strcmp(current->luogo, luogo_corrente) == 0 && current->stato != 3 && current->stato != 4) { // Stato 3 = conclusa, Stato 4 = annullata
+                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                        current->codice, current->luogo, current->tipologia, current->descrizione,
+                        current->data.giorno, current->data.mese, current->data.anno,
+                        current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
+                }
+                current = current->next;
+            }
+        break;
+        case 5:
+            printf("Visualizzazione delle richieste per tecnico...\n");    
+            sleep(2); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
+
+            int id_tecnico_corrente;
+            printf("Inserisci l'ID del tecnico da visualizzare: ");
+            scanf("%d", &id_tecnico_corrente);
+
+                // Si visualizzano tutte le richieste assegnate al tecnico con l'ID inserito, saltando le richieste concluse oppure annullate.
+
+            while (current != NULL) {
+                if (current->id_tecnico == id_tecnico_corrente && current->stato != 3 && current->stato != 4) { // Stato 3 = conclusa, Stato 4 = annullata
+                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %s, Stato: %hd, ID Tecnico: %d\n",
+                        current->codice, current->luogo, current->tipologia, current->descrizione,
+                        current->data.giorno, current->data.mese, current->data.anno,
+                        current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
+                }
+                current = current->next;
+            }
+        break;
+        default:
+            printf("Scelta non valida\n");
+    }
+}

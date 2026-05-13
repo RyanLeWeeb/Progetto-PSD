@@ -2,6 +2,8 @@
 #define TECNICO_H
 #include "Utility.h"
 
+#define NUM_SPECIALIZZAZIONI 5
+
 typedef struct Tecnico {
     int id;
     char nome[51];
