@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h> // Per la funzione sleep()
+#include <windows.h> // Per la funzione sleep()
 #include "Richiesta.h"
 #include "Tecnico.h"
 #include "Utility.h"
@@ -392,7 +392,7 @@ void assegnaTecnicoARichiesta(Richiesta *richiesta, Tecnico *listaTecnici) {
 
 // per visualizzare le richieste in base a diversi criteri (1. Tipologia, 2. Stato, 3. Urgenza, 4. Luogo, 5. Tecnico)
 void visualizzazioneRichieste(Richiesta *lista){
-    Richiesta *current = listaRichiesta;
+    Richiesta *current = lista;
     short choice;
 
     printf("Quale criterio vuoi utilizzare per visualizzare le richieste?\n");
