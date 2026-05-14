@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -I./Include
-SOURCES = Source/main.c Source/Richiesta.c Source/Tecnico.c Source/Utility.c
+SOURCES = main.c Source/Richiesta.c Source/Tecnico.c Source/Utility.c
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = sistema_interventi
 

@@ -76,6 +76,7 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
     }
 
     newNode->stato = 0; // 0 = aperta
+    newNode->next = NULL;
 
     int codice = 100000 + rand() % 900000;
     Richiesta *current = listaRichiesta;
@@ -92,19 +93,22 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
 
     // L'utente inserisce i dati della richiesta (luogo, tipologia, urgenza, descrizione)
 
-    printf("Inserisci il luogo dell'intervento: ");
-    scanf("%50s", newNode->luogo);
+    printf("Inserisci il luogo dell'intervento: (MAX. 50 caratteri)\n");
+    if (fgets(newNode->luogo, sizeof(newNode->luogo), stdin) != NULL) {
+        newNode->luogo[strcspn(newNode->luogo, "\n")] = '\0';
+    }
 
     printf("Inserisci la tipologia dell'intervento (1-5):\n1. Hardware\n2. Software\n3. Reti\n4. Sicurezza\n5. Altro\n");
-    scanf("%hd", &newNode->tipologia);
+    scanf(" %hd", &newNode->tipologia);
 
     printf("Inserisci l'urgenza dell'intervento (1-3):\n1. Bassa\n2. Media\n3. Alta\n");
-    scanf("%hd", &newNode->urgenza);
+    scanf(" %hd", &newNode->urgenza);
+    getchar(); // Consuma il newline rimasto nel buffer dopo scanf
 
-    printf("Inserisci la descrizione dell'intervento: ");
-    getchar();
-    fgets(newNode->descrizione, sizeof(newNode->descrizione), stdin);
-    newNode->descrizione[strcspn(newNode->descrizione, "\n")] = '\0';
+    printf("Inserisci la descrizione dell'intervento: (MAX. 100 caratteri)\n");
+    if (fgets(newNode->descrizione, sizeof(newNode->descrizione), stdin) != NULL) {
+        newNode->descrizione[strcspn(newNode->descrizione, "\n")] = '\0';
+    }
 
     if (listaRichiesta == NULL) {
         listaRichiesta = newNode;
@@ -116,6 +120,9 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
         current->next = newNode;
     }
 
+    newNode->data.giorno = 0; // Data non ancora pianificata
+    newNode->data.mese = 0;
+    newNode->data.anno = 0;
     newNode->oraInizio = 0; // Orario di inizio non ancora pianificato
     newNode->oraFine = 0; // Orario di fine non ancora pianificato
     newNode->id_tecnico = 0; // Tecnico non ancora assegnato
@@ -477,7 +484,7 @@ void visualizzazioneRichieste(Richiesta *lista){
                     // Si passa per ogni tipologia, stampando ogni tipo in ordine: 1. Hardware, 2. Software, 3. Reti, 4. Sicurezza, 5. Altro
 
                     if (current->tipologia == tipologia_corrente) {
-                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
+                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %d/%d/%d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
                             current->codice, current->luogo, current->tipologia, current->descrizione,
                             current->data.giorno, current->data.mese, current->data.anno,
                             current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
