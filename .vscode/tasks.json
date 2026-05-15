@@ -10,6 +10,7 @@
                 "/nologo",
                 "/Fe${workspaceFolder}\\sistema_interventi.exe",
                 "${workspaceFolder}\\main.c",
+                "${workspaceFolder}\\Source\\Test.c",
                 "${workspaceFolder}\\Source\\Richiesta.c",
                 "${workspaceFolder}\\Source\\Tecnico.c",
                 "${workspaceFolder}\\Source\\Utility.c"

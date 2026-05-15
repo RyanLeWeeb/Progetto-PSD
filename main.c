@@ -3,7 +3,7 @@
 #include "Include/Richiesta.h"
 #include "Include/Utility.h"
 #include "Include/Tecnico.h"
-
+#include "Include/Test.h"
 
 int main() {
     Richiesta *r =creaListaRichiesta();
@@ -20,6 +20,8 @@ int main() {
         printf("5. Aggiorna stato richiesta\n");
         printf("6. Visualizza storico interventi completati\n");
         printf("7. Genera report\n");
+        printf("8. Esegui test di registrazione richieste\n");
+        printf("9. Esegui test di registrazione tecnici\n");
         printf("0. Esci\n");
         printf("Scegli un'opzione: ");
         scanf("%d", &choice);
@@ -48,6 +50,12 @@ int main() {
                 break;
             case 7:
                 generaReport(r, t);
+                break;
+            case 8:
+                test_verifica_registrazione_richieste();
+                break;
+            case 9:
+                test_registrazione_tecnici();
                 break;
             case 0:
                 printf("Uscita in corso...\n");
