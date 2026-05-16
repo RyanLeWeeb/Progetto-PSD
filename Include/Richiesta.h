@@ -39,19 +39,21 @@ Richiesta *creaListaRichiesta();
 void aggiornaListaRichiesta(Richiesta *listaRichiesta);
 
 // Aggiunge una nuova richiesta alla lista
-void aggiungiRichiesta(Richiesta *listaRichiesta);
+Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, const char *luogo, short tipologia, short urgenza, const char *descrizione);
+
+void rimuoviRichiesta(Richiesta **listaRichiesta, int codice);
 
 // Aggiorna lo stato di una richiesta in base al codice
-void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *listaTecnici);
+int aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *listaTecnici, short nuovoStato, int id_tecnico, int oraInizio, int oraFine, Data data);
 
 // Ricerca le richieste in base a diversi criteri (1. Tipologia, 2. Codice Richiesta)
-void ricercaRichieste(Richiesta *listaRichiesta);
+void ricercaRichieste(Richiesta *listaRichiesta, short criterio, short tipologia, int codice);
 
 // Genera un report con statistiche sugli interventi
 // DA RICONTROLLARE
 void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico);
 
 // Visualizza le richieste in base a diversi criteri (1. Tipologia, 2. Stato, 3. Urgenza, 4. Luogo, 5. Tecnico)
-void visualizzazioneRichieste(Richiesta *lista);
+void visualizzazioneRichieste(Richiesta *lista, short criterio, short tipologia, short stato, short urgenza, const char *luogo, int id_tecnico);
 
 #endif

@@ -59,44 +59,67 @@ void aggiornaListaTecnico(Tecnico *listaTecnico) {
     fclose(fp);
 }
 
-void aggiungiTecnico(Tecnico *listaTecnico){
+Tecnico *aggiungiTecnico(Tecnico *listaTecnico, const char *nome, int specializzazione){
     Tecnico *newNode = malloc(sizeof(Tecnico));
     if (newNode == NULL) {
         printf("Errore: Memoria non allocabile\n");
         exit(1);
     }
     
-    // srand(time(NULL)); // Inizializza il generatore di numeri casuali con il tempo attuale
     int id = 100000 + rand() % 900000; // Genera un numero casuale tra 100000 e 999999
 
     Tecnico *current = listaTecnico;
     while (current != NULL) {
         if (current->id == id) {
-            // Se l'ID generato esiste già, genera un nuovo ID
             id = 100000 + rand() % 900000;
-            current = listaTecnico; // Ricomincia a controllare dall'inizio
+            current = listaTecnico;
         } else {
             current = current->next;
         }
     }
-    newNode->id = id; // Assegna l'ID univoco al nuovo tecnico
-
-    printf("Inserisci il nome del tecnico: ");
-    scanf("%50s", newNode->nome);
-    printf("Inserisci la specializzazione del tecnico:\n1. Hardware\n2. Software\n3. Reti\n4. Sicurezza\n5. Altro\n");
-    scanf("%d", &newNode->specializzazione);
+    newNode->id = id;
+    strncpy(newNode->nome, nome, sizeof(newNode->nome) - 1);
+    newNode->nome[sizeof(newNode->nome) - 1] = '\0';
+    newNode->specializzazione = specializzazione;
     newNode->next = NULL;
 
     if (listaTecnico == NULL) {
         listaTecnico = newNode;
     } else {
-        Tecnico *current = listaTecnico;
-        while (current->next != NULL) {
-            current = current->next;
+        Tecnico *tail = listaTecnico;
+        while (tail->next != NULL) {
+            tail = tail->next;
         }
-        current->next = newNode;
+        tail->next = newNode;
     }
     aggiornaListaTecnico(listaTecnico);
+    return listaTecnico;
+}
+
+void rimuoviTecnico(Tecnico **listaTecnico, int id){
+    if (*listaTecnico == NULL) {
+        printf("La lista dei tecnici è vuota.\n");
+        return;
+    }
+
+    Tecnico *current = *listaTecnico;
+    Tecnico *previous = NULL;
+
+    while (current != NULL) {
+        if (current->id == id) {
+            if (previous == NULL) {
+                *listaTecnico = current->next; // Rimuove il primo nodo
+            } else {
+                previous->next = current->next; // Rimuove il nodo corrente
+            }
+            aggiornaListaTecnico(*listaTecnico);
+            printf("Tecnico con ID %d rimosso.\n", id);
+            return;
+        }
+        previous = current;
+        current = current->next;
+    }
+    printf("Tecnico con ID %d non trovato.\n", id);
 }
 
 int orelavorate(Richiesta *listaRichieste, Tecnico *tecnico) {
