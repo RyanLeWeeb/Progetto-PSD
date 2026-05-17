@@ -165,16 +165,20 @@ int main() {
                 printf("Scegli quale test eseguire:\n");
                 printf("1. Verifica registrazione richiesta\n");
                 printf("2. Verifica registrazione tecnico\n");
+                printf("3. Verifica assegnazione tecnico e aggiornamento stato\n");
                 printf("Scegli un'opzione: ");
                 int choice_two;
                 if (scanf("%d", &choice_two) == 1) {
                     svuotaBuffer();
                     switch (choice_two) {
                         case 1:
-                            test_verifica_registrazione_richiesta(r);
+                            test_verifica_registrazione_richiesta(&r);
                             break;
                         case 2:
-                            test_verifica_registrazione_tecnico(t);
+                            test_verifica_registrazione_tecnico(&t);
+                            break;
+                        case 3:
+                            test_verifica_assegnazione_tecnico_e_aggiornamento_stato(&r, &t);
                             break;
                         default:
                             printf("Scelta non valida\n");

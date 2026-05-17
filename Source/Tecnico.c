@@ -22,8 +22,8 @@ Tecnico* creaListaTecnico(){
             exit(1);
         }
 
-        // Parse the line: nome-ID-specializzazione
-        if (sscanf(line, "%50[^-]-%d-%d", newNode->nome, &newNode->id, &newNode->specializzazione) == 3) {
+        // Parse the line: nome-ID-specializzazione-num_ore_lavorate
+        if (sscanf(line, "%50[^-]-%d-%d-%d", newNode->nome, &newNode->id, &newNode->specializzazione, &newNode->num_ore_lavorate) == 4) {
             newNode->next = NULL;
             if (head == NULL) {
                 head = newNode;
@@ -51,11 +51,10 @@ void aggiornaListaTecnico(Tecnico *listaTecnico) {
 
     Tecnico *current = listaTecnico;
     while (current != NULL) {
-        fprintf(fp, "%s-%d-%d\n", current->nome, current->id, current->specializzazione);
+        fprintf(fp, "%s-%d-%d-%d\n", current->nome, current->id, current->specializzazione, current->num_ore_lavorate);
         current = current->next;
     }
 
-    free(current);
     fclose(fp);
 }
 
@@ -66,7 +65,7 @@ Tecnico *aggiungiTecnico(Tecnico *listaTecnico, const char *nome, int specializz
         exit(1);
     }
     
-    int id = 100000 + rand() % 900000; // Genera un numero casuale tra 100000 e 999999
+    int id = 100000 + rand() % 900000; 
 
     Tecnico *current = listaTecnico;
     while (current != NULL) {
@@ -81,6 +80,7 @@ Tecnico *aggiungiTecnico(Tecnico *listaTecnico, const char *nome, int specializz
     strncpy(newNode->nome, nome, sizeof(newNode->nome) - 1);
     newNode->nome[sizeof(newNode->nome) - 1] = '\0';
     newNode->specializzazione = specializzazione;
+    newNode->num_ore_lavorate = 0;
     newNode->next = NULL;
 
     if (listaTecnico == NULL) {
@@ -108,11 +108,15 @@ void rimuoviTecnico(Tecnico **listaTecnico, int id){
     while (current != NULL) {
         if (current->id == id) {
             if (previous == NULL) {
-                *listaTecnico = current->next; // Rimuove il primo nodo
+                *listaTecnico = current->next; 
             } else {
-                previous->next = current->next; // Rimuove il nodo corrente
+                previous->next = current->next; 
             }
+            
             aggiornaListaTecnico(*listaTecnico);
+            
+            free(current); 
+            
             printf("Tecnico con ID %d rimosso.\n", id);
             return;
         }
