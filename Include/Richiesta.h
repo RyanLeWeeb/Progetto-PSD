@@ -56,4 +56,9 @@ void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico);
 // Visualizza le richieste in base a diversi criteri (1. Tipologia, 2. Stato, 3. Urgenza, 4. Luogo, 5. Tecnico)
 void visualizzazioneRichieste(Richiesta *lista, short criterio, short tipologia, short stato, short urgenza, const char *luogo, int id_tecnico);
 
+// Dealloca la memoria della lista delle richieste
+void deallocaListaRichieste(Richiesta *lista);
+
+void visualizzaStoricoInterventiCompletati(Richiesta *listaRichiesta);
+
 #endif

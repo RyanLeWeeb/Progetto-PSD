@@ -528,3 +528,13 @@ void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico) {
     printf("===================================================\n\n");
 }
 
+void deallocaListaRichieste(Richiesta *lista) {
+    Richiesta *current = lista;
+    Richiesta *next_node;
+
+    while (current != NULL) {
+        next_node = current->next; // 1. Salvi il puntatore al prossimo nodo
+        free(current);             // 2. Liberi il nodo corrente
+        current = next_node;       // 3. Passi al prossimo nodo
+    }
+}

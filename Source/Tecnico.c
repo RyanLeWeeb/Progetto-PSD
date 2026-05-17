@@ -151,3 +151,14 @@ void stampaOreLavorateTecnici(Tecnico *listaTecnico, Richiesta *listaRichieste){
         currentTecnico = currentTecnico->next;
     }
 }
+
+void deallocaListaTecnici(Tecnico *lista) {
+    Tecnico *current = lista;
+    Tecnico *next_node;
+
+    while (current != NULL) {
+        next_node = current->next;
+        free(current);
+        current = next_node;
+    }
+}

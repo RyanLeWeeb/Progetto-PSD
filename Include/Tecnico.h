@@ -36,4 +36,7 @@ int orelavorate(Richiesta *listaRichieste, Tecnico *tecnico);
 // Stampa le ore lavorate da ogni tecnico
 void stampaOreLavorateTecnici(Tecnico *listaTecnico, Richiesta *listaRichieste);
 
+// Dealloca la memoria della lista dei tecnici
+void deallocaListaTecnici(Tecnico *lista);
+
 #endif
