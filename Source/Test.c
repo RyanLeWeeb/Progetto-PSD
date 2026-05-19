@@ -6,32 +6,33 @@
 #include "../Include/Tecnico.h"
 #include "../Include/Utility.h"
 
-void test_verifica_registrazione_richiesta() {
+void test_verifica_registrazione_richiesta(Richiesta **lista) {
     printf("\nTest di verifica registrazione richiesta...\n");
     
     // 1. Modifichiamo direttamente la testa della lista reale nel main
-    Richiesta *lista = creaListaRichiesta();
-    lista = aggiungiRichiesta(lista, "Ufficio 1", 1, 2, "Problema con il computer");
+    *lista = aggiungiRichiesta(*lista, "Ufficio 1", 1, 2, "Problema con il computer");
     
     // 2. Usiamo un puntatore singolo locale per scorrere la lista in sicurezza
-    Richiesta *current = lista;
+    Richiesta *current = *lista;
     int found = 0;
     int codice_da_rimuovere = -1;
 
-    while (current->next != NULL) {
-        current = current->next;
-    }
-    if (strcmp(current->luogo, "Ufficio 1") == 0 && 
-        current->tipologia == 1 && current->urgenza == 2 && 
-        strcmp(current->descrizione, "Problema con il computer") == 0 &&
-        current->stato == 0 &&
-        current->id_tecnico == 0 &&
-        current->data.giorno == 0 && current->data.mese == 0 && current->data.anno == 0 &&
-        current->oraInizio == 0 && current->oraFine == 0) {
+    while (current != NULL) {
+        if (strcmp(current->luogo, "Ufficio 1") == 0 && 
+            current->tipologia == 1 && current->urgenza == 2 && 
+            strcmp(current->descrizione, "Problema con il computer") == 0 &&
+            current->stato == 0 &&
+            current->id_tecnico == 0 &&
+            current->data.giorno == 0 && current->data.mese == 0 && current->data.anno == 0 &&
+            current->oraInizio == 0 && current->oraFine == 0) {
             
             found = 1;
-            codice_da_rimuovere = current->codice;
+            codice_da_rimuovere = current->codice; 
+            break; 
+        }
+        current = current->next;
     }
+
     if (found) {
         printf("Test superato: richiesta registrata correttamente\n");
         // 3. Passiamo l'indirizzo del puntatore reale, rimuoviRichiesta riallineerà il main
@@ -39,8 +40,8 @@ void test_verifica_registrazione_richiesta() {
     } else {
         printf("Test fallito: richiesta non trovata o dati non corretti\n");
         // Se l'inserimento è avvenuto ma i dati interni erano fallati, ripuliamo la testa reale
-        if (lista != NULL) {
-            rimuoviRichiesta(lista, lista->codice);
+        if (*lista != NULL) {
+            rimuoviRichiesta(lista, (*lista)->codice);
         }
     }
 }
@@ -59,7 +60,8 @@ void test_verifica_registrazione_tecnico(Tecnico **lista) {
 
     while (current != NULL) {
         if (strcmp(current->nome, "Mario Rossi") == 0 && 
-            current->specializzazione == 2) {
+            current->specializzazione == 2 && 
+            current->num_ore_lavorate == 0) {
             
             found = 1;
             id_da_rimuovere = current->id; 
@@ -76,7 +78,7 @@ void test_verifica_registrazione_tecnico(Tecnico **lista) {
     } else {
         printf("Test fallito: tecnico non trovato o dati non corretti\n");
         // Pulizia di emergenza se il nodo è stato creato ma non validato dall'if
-        if (lista != NULL) {
+        if (*lista != NULL) {
             rimuoviTecnico(lista, (*lista)->id);
         }
     }

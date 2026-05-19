@@ -172,10 +172,10 @@ int main() {
                     svuotaBuffer();
                     switch (choice_two) {
                         case 1:
-                            test_verifica_registrazione_richiesta(r);
+                            test_verifica_registrazione_richiesta(&r);
                             break;
                         case 2:
-                            test_verifica_registrazione_tecnico(t);
+                            test_verifica_registrazione_tecnico(&t);
                             break;
                         case 3:
                             test_verifica_assegnazione_tecnico_e_aggiornamento_stato(&r, &t);

@@ -7,14 +7,14 @@
 #include "../Include/Utility.h"
 
 Richiesta *creaListaRichiesta(){
-    FILE *fp = fopen("Liste/Richiesta.txt", "w");
+    FILE *fp = fopen("Liste/Richiesta.txt", "r");
     if (fp == NULL) {
         printf("Errore: Impossibile aprire il file Richiesta.txt\n");
         exit(1);
     }
 
     Richiesta *head = NULL;
-    Richiesta *current = NULL;
+    Richiesta *tail = NULL;
     char line[256];
 
     while (fgets(line, sizeof(line), fp)) {
@@ -34,10 +34,10 @@ Richiesta *creaListaRichiesta(){
             newNode->next = NULL;
             if (head == NULL) {
                 head = newNode;
-                current = newNode;
+                tail = newNode;
             } else {
-                current->next = newNode;
-                current = newNode;
+                tail->next = newNode;
+                tail = newNode;
             }
         } else {
             // Riga non valida, libera il nodo
@@ -49,7 +49,7 @@ Richiesta *creaListaRichiesta(){
     return head;
 }
 
-void aggiornaListaRichiesta(Richiesta *listaRichiesta) {
+void aggiornaListaRichiesta(Richiesta *listaRichiesta){
     FILE *fp = fopen("Liste/Richiesta.txt", "w");
     if (fp == NULL) {
         printf("Errore: Impossibile aprire il file Richiesta.txt\n");
@@ -101,11 +101,11 @@ Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, const char *luogo, short
     if (listaRichiesta == NULL) {
         listaRichiesta = newNode;
     } else {
-        current = listaRichiesta;
-        while (current->next != NULL) {
-            current = current->next;
+        Richiesta *tail = listaRichiesta;
+        while (tail->next != NULL) {
+            tail = tail->next;
         }
-        current->next = newNode;
+        tail->next = newNode;
     }
 
     newNode->data.giorno = 0; // Data non ancora pianificata
@@ -119,7 +119,7 @@ Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, const char *luogo, short
     return listaRichiesta;
 }
 
-void rimuoviRichiesta(Richiesta **listaRichiesta, int codice, char* filename) {
+void rimuoviRichiesta(Richiesta **listaRichiesta, int codice) {
     Richiesta *current = *listaRichiesta;
     Richiesta *prev = NULL;
 
@@ -131,7 +131,7 @@ void rimuoviRichiesta(Richiesta **listaRichiesta, int codice, char* filename) {
             } else {
                 prev->next = current->next; // Rimuove il nodo corrente
             }
-            aggiornaListaRichiesta(*listaRichiesta, filename);
+            aggiornaListaRichiesta(*listaRichiesta);
             printf("Richiesta con codice %d rimossa con successo.\n", codice);
             return;
         }
@@ -461,15 +461,28 @@ void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico) {
         }
     }
 
-    Tecnico *tecnicoAttivo = NULL;
     int maxOreTecnico = 0;
-    while(current->next != NULL) {
-        int oreLavorate = orelavorate(listaRichiesta, current);
-        if (oreLavorate > maxOreTecnico) {
-            maxOreTecnico = oreLavorate;
-            tecnicoAttivo = current;
+    Tecnico *tecnicoAttivo = NULL;
+    Tecnico *currentTecnico = listaTecnico;
+    while (currentTecnico != NULL) {
+        int oreTotali = 0;
+        Richiesta *richiesta = listaRichiesta;
+        while (richiesta != NULL) {
+            if (richiesta->id_tecnico == currentTecnico->id && richiesta->stato == 3) {
+                int durata = richiesta->oraFine - richiesta->oraInizio;
+                if (durata > 0) {
+                    oreTotali += durata;
+                }
+            }
+            richiesta = richiesta->next;
         }
-        current = current->next;
+
+        currentTecnico->num_ore_lavorate = oreTotali;
+        if (oreTotali > maxOreTecnico || tecnicoAttivo == NULL) {
+            maxOreTecnico = oreTotali;
+            tecnicoAttivo = currentTecnico;
+        }
+        currentTecnico = currentTecnico->next;
     }
 
     printf("\n========== REPORT STATISTICHE INTERVENTI ==========" "\n");

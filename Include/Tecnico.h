@@ -15,6 +15,7 @@ typedef struct Tecnico {
     // 3. Reti
     // 4. Sicurezza
     // 5. Altro
+    int num_ore_lavorate; // Per il Report del tecnico più attivo
     struct Tecnico *next;
 } Tecnico;
 
