@@ -33,7 +33,7 @@ typedef struct Richiesta {
 } Richiesta;
 
 // Crea la lista delle richieste leggendo dal file "Richiesta.txt" oppure da filename se specificato
-Richiesta *creaListaRichiesta(char *filename);
+Richiesta *creaListaRichiesta();
 
 // Aggiorna il file con la lista delle richieste
 void aggiornaListaRichiesta(Richiesta *listaRichiesta);

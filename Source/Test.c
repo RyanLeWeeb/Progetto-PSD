@@ -6,11 +6,11 @@
 #include "../Include/Tecnico.h"
 #include "../Include/Utility.h"
 
-void test_verifica_registrazione_richiesta(char *filename) {
+void test_verifica_registrazione_richiesta() {
     printf("\nTest di verifica registrazione richiesta...\n");
     
     // 1. Modifichiamo direttamente la testa della lista reale nel main
-    Richiesta *lista = creaListaRichiesta(filename); // Passa il filename per usare un file di test dedicato
+    Richiesta *lista = creaListaRichiesta();
     lista = aggiungiRichiesta(lista, "Ufficio 1", 1, 2, "Problema con il computer");
     
     // 2. Usiamo un puntatore singolo locale per scorrere la lista in sicurezza
@@ -29,8 +29,8 @@ void test_verifica_registrazione_richiesta(char *filename) {
         current->data.giorno == 0 && current->data.mese == 0 && current->data.anno == 0 &&
         current->oraInizio == 0 && current->oraFine == 0) {
             
-        found = 1;
-        codice_da_rimuovere = current->codice;
+            found = 1;
+            codice_da_rimuovere = current->codice;
     }
     if (found) {
         printf("Test superato: richiesta registrata correttamente\n");

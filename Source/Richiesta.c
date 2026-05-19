@@ -6,13 +6,10 @@
 #include "../Include/Tecnico.h"
 #include "../Include/Utility.h"
 
-Richiesta *creaListaRichiesta(char *filename){
-    if(filename == NULL){
-        filename = "Liste/Richiesta.txt";
-    }
-    FILE *fp = fopen(filename, "r");
+Richiesta *creaListaRichiesta(){
+    FILE *fp = fopen("Liste/Richiesta.txt", "w");
     if (fp == NULL) {
-        printf("Errore: Impossibile aprire il file %s\n", filename);
+        printf("Errore: Impossibile aprire il file Richiesta.txt\n");
         exit(1);
     }
 
@@ -52,7 +49,7 @@ Richiesta *creaListaRichiesta(char *filename){
     return head;
 }
 
-void aggiornaListaRichiesta(Richiesta *listaRichiesta){
+void aggiornaListaRichiesta(Richiesta *listaRichiesta) {
     FILE *fp = fopen("Liste/Richiesta.txt", "w");
     if (fp == NULL) {
         printf("Errore: Impossibile aprire il file Richiesta.txt\n");
@@ -122,7 +119,7 @@ Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, const char *luogo, short
     return listaRichiesta;
 }
 
-void rimuoviRichiesta(Richiesta **listaRichiesta, int codice) {
+void rimuoviRichiesta(Richiesta **listaRichiesta, int codice, char* filename) {
     Richiesta *current = *listaRichiesta;
     Richiesta *prev = NULL;
 
@@ -134,7 +131,7 @@ void rimuoviRichiesta(Richiesta **listaRichiesta, int codice) {
             } else {
                 prev->next = current->next; // Rimuove il nodo corrente
             }
-            aggiornaListaRichiesta(*listaRichiesta);
+            aggiornaListaRichiesta(*listaRichiesta, filename);
             printf("Richiesta con codice %d rimossa con successo.\n", codice);
             return;
         }
