@@ -178,7 +178,7 @@ int main() {
                             test_verifica_registrazione_tecnico(t);
                             break;
                         case 3:
-                            test_verifica_assegnazione_tecnico_e_aggiornamento_stato(&r, &t, testfile);
+                            test_verifica_assegnazione_tecnico_e_aggiornamento_stato(&r, &t);
                             break;
                         default:
                             printf("Scelta non valida\n");
