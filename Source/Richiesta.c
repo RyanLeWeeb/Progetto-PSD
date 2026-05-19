@@ -6,15 +6,18 @@
 #include "../Include/Tecnico.h"
 #include "../Include/Utility.h"
 
-Richiesta *creaListaRichiesta(){
-    FILE *fp = fopen("Liste/Richiesta.txt", "r");
+Richiesta *creaListaRichiesta(char *filename){
+    if(filename == NULL){
+        filename = "Liste/Richiesta.txt";
+    }
+    FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
-        printf("Errore: Impossibile aprire il file Richiesta.txt\n");
+        printf("Errore: Impossibile aprire il file %s\n", filename);
         exit(1);
     }
 
     Richiesta *head = NULL;
-    Richiesta *tail = NULL;
+    Richiesta *current = NULL;
     char line[256];
 
     while (fgets(line, sizeof(line), fp)) {
@@ -34,10 +37,10 @@ Richiesta *creaListaRichiesta(){
             newNode->next = NULL;
             if (head == NULL) {
                 head = newNode;
-                tail = newNode;
+                current = newNode;
             } else {
-                tail->next = newNode;
-                tail = newNode;
+                current->next = newNode;
+                current = newNode;
             }
         } else {
             // Riga non valida, libera il nodo
@@ -101,11 +104,11 @@ Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, const char *luogo, short
     if (listaRichiesta == NULL) {
         listaRichiesta = newNode;
     } else {
-        Richiesta *tail = listaRichiesta;
-        while (tail->next != NULL) {
-            tail = tail->next;
+        current = listaRichiesta;
+        while (current->next != NULL) {
+            current = current->next;
         }
-        tail->next = newNode;
+        current->next = newNode;
     }
 
     newNode->data.giorno = 0; // Data non ancora pianificata
@@ -461,28 +464,15 @@ void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico) {
         }
     }
 
-    int maxOreTecnico = 0;
     Tecnico *tecnicoAttivo = NULL;
-    Tecnico *currentTecnico = listaTecnico;
-    while (currentTecnico != NULL) {
-        int oreTotali = 0;
-        Richiesta *richiesta = listaRichiesta;
-        while (richiesta != NULL) {
-            if (richiesta->id_tecnico == currentTecnico->id && richiesta->stato == 3) {
-                int durata = richiesta->oraFine - richiesta->oraInizio;
-                if (durata > 0) {
-                    oreTotali += durata;
-                }
-            }
-            richiesta = richiesta->next;
+    int maxOreTecnico = 0;
+    while(current->next != NULL) {
+        int oreLavorate = orelavorate(listaRichiesta, current);
+        if (oreLavorate > maxOreTecnico) {
+            maxOreTecnico = oreLavorate;
+            tecnicoAttivo = current;
         }
-
-        currentTecnico->num_ore_lavorate = oreTotali;
-        if (oreTotali > maxOreTecnico || tecnicoAttivo == NULL) {
-            maxOreTecnico = oreTotali;
-            tecnicoAttivo = currentTecnico;
-        }
-        currentTecnico = currentTecnico->next;
+        current = current->next;
     }
 
     printf("\n========== REPORT STATISTICHE INTERVENTI ==========" "\n");

@@ -32,8 +32,8 @@ typedef struct Richiesta {
     struct Richiesta *next;
 } Richiesta;
 
-// Crea la lista delle richieste leggendo dal file "Richiesta.txt"
-Richiesta *creaListaRichiesta();
+// Crea la lista delle richieste leggendo dal file "Richiesta.txt" oppure da filename se specificato
+Richiesta *creaListaRichiesta(char *filename);
 
 // Aggiorna il file con la lista delle richieste
 void aggiornaListaRichiesta(Richiesta *listaRichiesta);

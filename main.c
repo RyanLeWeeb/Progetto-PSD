@@ -13,8 +13,8 @@ void svuotaBuffer() {
 }
 
 int main() {
-    Richiesta *r = creaListaRichiesta();
-    Tecnico *t = creaListaTecnico();
+    Richiesta *r = creaListaRichiesta(NULL); // Passa NULL per usare il file di default
+    Tecnico *t = creaListaTecnico(NULL); // Passa NULL per usare il file di default
 
     int codice;
     int choice;

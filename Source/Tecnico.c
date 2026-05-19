@@ -3,10 +3,13 @@
 #include "../Include/Tecnico.h"
 #include "../Include/Richiesta.h"
 
-Tecnico* creaListaTecnico(){
-    FILE *fp = fopen("Liste/Tecnico.txt", "r");
+Tecnico* creaListaTecnico(char *filename){
+    if(filename == NULL){
+        filename = "Liste/Tecnico.txt";
+    }
+    FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
-        printf("Errore: Impossibile aprire il file Tecnico.txt\n");
+        printf("Errore: Impossibile aprire il file %s\n", filename);
         exit(1);
     }
 
@@ -22,8 +25,8 @@ Tecnico* creaListaTecnico(){
             exit(1);
         }
 
-        // Parse the line: nome-ID-specializzazione-num_ore_lavorate
-        if (sscanf(line, "%50[^-]-%d-%d-%d", newNode->nome, &newNode->id, &newNode->specializzazione, &newNode->num_ore_lavorate) == 4) {
+        // Parse the line: nome-ID-specializzazione
+        if (sscanf(line, "%50[^-]-%d-%d", newNode->nome, &newNode->id, &newNode->specializzazione) == 3) {
             newNode->next = NULL;
             if (head == NULL) {
                 head = newNode;
@@ -51,7 +54,7 @@ void aggiornaListaTecnico(Tecnico *listaTecnico) {
 
     Tecnico *current = listaTecnico;
     while (current != NULL) {
-        fprintf(fp, "%s-%d-%d-%d\n", current->nome, current->id, current->specializzazione, current->num_ore_lavorate);
+        fprintf(fp, "%s-%d-%d\n", current->nome, current->id, current->specializzazione);
         current = current->next;
     }
 
@@ -80,7 +83,6 @@ Tecnico *aggiungiTecnico(Tecnico *listaTecnico, const char *nome, int specializz
     strncpy(newNode->nome, nome, sizeof(newNode->nome) - 1);
     newNode->nome[sizeof(newNode->nome) - 1] = '\0';
     newNode->specializzazione = specializzazione;
-    newNode->num_ore_lavorate = 0;
     newNode->next = NULL;
 
     if (listaTecnico == NULL) {
