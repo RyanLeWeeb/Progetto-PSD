@@ -6,15 +6,18 @@
 #include "../Include/Tecnico.h"
 #include "../Include/Utility.h"
 
-Richiesta *creaListaRichiesta(){
-    FILE *fp = fopen("Liste/Richiesta.txt", "r");
+Richiesta *creaListaRichiesta(char *filename){
+    if(filename == NULL){
+        filename = "Liste/Richiesta.txt";
+    }
+    FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
-        printf("Errore: Impossibile aprire il file Richiesta.txt\n");
+        printf("Errore: Impossibile aprire il file %s\n", filename);
         exit(1);
     }
 
     Richiesta *head = NULL;
-    Richiesta *tail = NULL;
+    Richiesta *current = NULL;
     char line[256];
 
     while (fgets(line, sizeof(line), fp)) {
@@ -34,10 +37,10 @@ Richiesta *creaListaRichiesta(){
             newNode->next = NULL;
             if (head == NULL) {
                 head = newNode;
-                tail = newNode;
+                current = newNode;
             } else {
-                tail->next = newNode;
-                tail = newNode;
+                current->next = newNode;
+                current = newNode;
             }
         } else {
             // Riga non valida, libera il nodo
@@ -68,7 +71,7 @@ void aggiornaListaRichiesta(Richiesta *listaRichiesta){
     fclose(fp);
 }
 
-void aggiungiRichiesta(Richiesta *listaRichiesta){
+Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, const char *luogo, short tipologia, short urgenza, const char *descrizione){
     Richiesta *newNode = malloc(sizeof(Richiesta));
     if (newNode == NULL) {
         printf("Errore: Memoria non allocabile\n");
@@ -91,29 +94,17 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
     }
     newNode->codice = codice;
 
-    // L'utente inserisce i dati della richiesta (luogo, tipologia, urgenza, descrizione)
-
-    printf("Inserisci il luogo dell'intervento: (MAX. 50 caratteri)\n");
-    if (fgets(newNode->luogo, sizeof(newNode->luogo), stdin) != NULL) {
-        newNode->luogo[strcspn(newNode->luogo, "\n")] = '\0';
-    }
-
-    printf("Inserisci la tipologia dell'intervento (1-5):\n1. Hardware\n2. Software\n3. Reti\n4. Sicurezza\n5. Altro\n");
-    scanf(" %hd", &newNode->tipologia);
-
-    printf("Inserisci l'urgenza dell'intervento (1-3):\n1. Bassa\n2. Media\n3. Alta\n");
-    scanf(" %hd", &newNode->urgenza);
-    getchar(); // Consuma il newline rimasto nel buffer dopo scanf
-
-    printf("Inserisci la descrizione dell'intervento: (MAX. 100 caratteri)\n");
-    if (fgets(newNode->descrizione, sizeof(newNode->descrizione), stdin) != NULL) {
-        newNode->descrizione[strcspn(newNode->descrizione, "\n")] = '\0';
-    }
+    strncpy(newNode->luogo, luogo, sizeof(newNode->luogo) - 1);
+    newNode->luogo[sizeof(newNode->luogo) - 1] = '\0';
+    newNode->tipologia = tipologia;
+    strncpy(newNode->descrizione, descrizione, sizeof(newNode->descrizione) - 1);
+    newNode->descrizione[sizeof(newNode->descrizione) - 1] = '\0';
+    newNode->urgenza = urgenza;
 
     if (listaRichiesta == NULL) {
         listaRichiesta = newNode;
     } else {
-        Richiesta *current = listaRichiesta;
+        current = listaRichiesta;
         while (current->next != NULL) {
             current = current->next;
         }
@@ -128,40 +119,51 @@ void aggiungiRichiesta(Richiesta *listaRichiesta){
     newNode->id_tecnico = 0; // Tecnico non ancora assegnato
 
     aggiornaListaRichiesta(listaRichiesta);
+    return listaRichiesta;
 }
 
-void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *listaTecnici) {
+void rimuoviRichiesta(Richiesta **listaRichiesta, int codice) {
+    Richiesta *current = *listaRichiesta;
+    Richiesta *prev = NULL;
+
+    while (current != NULL) {
+        if (current->codice == codice) {
+            if (prev == NULL) {
+                // Rimuove il primo nodo
+                *listaRichiesta = current->next;
+            } else {
+                prev->next = current->next; // Rimuove il nodo corrente
+            }
+            aggiornaListaRichiesta(*listaRichiesta);
+            printf("Richiesta con codice %d rimossa con successo.\n", codice);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    printf("Errore: richiesta con codice %d non trovata.\n", codice);
+}
+
+int aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *listaTecnici, short nuovoStato, int id_tecnico, int oraInizio, int oraFine, Data data) {
     Richiesta *currentRichiesta = listaRichiesta;
-    Tecnico *currentTecnici = listaTecnici;
 
-    while(currentRichiesta != NULL) {
+    while (currentRichiesta != NULL) {
         if (currentRichiesta->codice == codice) {
-            short choice;
-            printf("Quale nuovo stato vuoi assegnare alla richiesta?\n");
-            printf("1. Pianificata\n2. In lavorazione\n3. Conclusa\n4. Annullata\n");
-            scanf("%hd", &choice);
-            switch (choice){
+            switch (nuovoStato){
                 case 1:
-                    if(currentRichiesta->stato != 0){ // Si può passare da "aperta" a "pianificata"
+                printf("\nStato della richiesta prima dell'aggiornamento: %hd\n", currentRichiesta->stato);
+                printf("\nTipologia: %hd, Urgenza: %hd", currentRichiesta->tipologia, currentRichiesta->urgenza);
+                
+                    if (currentRichiesta->stato != 0) {
                         printf("Errore: Lo stato può essere aggiornato a Pianificata solo se la richiesta è attualmente Aperta\n");
-                        return;
-                    }
-                    while(currentTecnici != NULL)
-                    {
-                        if (currentTecnici->specializzazione == currentRichiesta->tipologia) {
-                            // Stampa le informazioni di ogni tecnico con specializzazione corrispondente alla tipologia della richiesta
-                            printf("Tecnico ID: %d, Nome: %s\n", currentTecnici->id, currentTecnici->nome);
-                            break;
-                        }
-                        currentTecnici = currentTecnici->next;
+                        return 0;
                     }
 
-                    back:
-                    printf("Inserire l'ID del tecnico da assegnare alla richiesta: ");
-                    int id_tecnico;
-                    scanf("%d", &id_tecnico);
+                    if (id_tecnico <= 0) {
+                        printf("Errore: ID tecnico non valido\n");
+                        return 0;
+                    }
 
-                    // Verifica che l'ID inserito corrisponda a un tecnico con specializzazione corrispondente alla tipologia della richiesta
                     Tecnico *tempTecnico = listaTecnici;
                     int idValido = 0;
                     while (tempTecnico != NULL) {
@@ -173,97 +175,81 @@ void aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *list
                     }
                     if (!idValido) {
                         printf("Errore: L'ID del tecnico inserito non è valido o non corrisponde alla specializzazione della richiesta\n");
-                        goto back;
+                        return 0;
                     }
 
-                    backtwo:
-                    printf("Inserire l'ora di inizio dell'intervento (0-23): ");
-                    scanf("%d", &currentRichiesta->oraInizio);
-
-                    printf("Inserire l'ora di fine dell'intervento (0-23): ");
-                    scanf("%d", &currentRichiesta->oraFine);
-
-                    Richiesta *tempRichiesta = listaRichiesta;
-                    int conflitto = 0;
-                    while (tempRichiesta != NULL) {
-                        if (tempRichiesta != currentRichiesta &&
-                            confrontaDate(tempRichiesta->data, currentRichiesta->data) == 0 &&
-                            sonoOrariSovrapposti(tempRichiesta->oraInizio, tempRichiesta->oraFine,
-                                                 currentRichiesta->oraInizio, currentRichiesta->oraFine) &&
-                            tempRichiesta->id_tecnico == id_tecnico && tempRichiesta->stato != 4 && tempRichiesta->stato != 5 && tempRichiesta->stato != 0) { 
-                                // Esclude richieste annullate, concluse, o aperte (non ancora pianificate)
-                            conflitto = 1;
-                            break;
-                        }
-                        tempRichiesta = tempRichiesta->next;
+                    if (oraInizio < 0 || oraInizio > 23 || oraFine < 0 || oraFine > 23 || oraInizio >= oraFine) {
+                        printf("Errore: Orario non valido\n");
+                        return 0;
                     }
 
-                    // Se c'è un conflitto, avvisa l'utente e chiedi se vuole cambiare la data dell'intervento
-                    if (conflitto) {
-                        printf("Errore: Il tecnico selezionato è già assegnato a un intervento nello stesso orario\n");
-                        printf("Cambiare data dell'intervento? (1. Sì, 2. No)\n");
-                        if(scanf("%hd", &choice) && choice == 1) {
-                            printf("Inserire data dell'intervento (gg/mm/aaaa): ");
-                            scanf("%d/%d/%d", &currentRichiesta->data.giorno, &currentRichiesta->data.mese, &currentRichiesta->data.anno);
+                    currentRichiesta->id_tecnico = id_tecnico;
+                    currentRichiesta->oraInizio = oraInizio;
+                    currentRichiesta->oraFine = oraFine;
+                    currentRichiesta->data = data;
+
+                    {
+                        Richiesta *tempRichiesta = listaRichiesta;
+                        int conflitto = 0;
+                        while (tempRichiesta != NULL) {
+                            if (tempRichiesta != currentRichiesta &&
+                                confrontaDate(tempRichiesta->data, currentRichiesta->data) == 0 &&
+                                sonoOrariSovrapposti(tempRichiesta->oraInizio, tempRichiesta->oraFine,
+                                                     currentRichiesta->oraInizio, currentRichiesta->oraFine) &&
+                                tempRichiesta->id_tecnico == id_tecnico && tempRichiesta->stato != 4 && tempRichiesta->stato != 5 && tempRichiesta->stato != 0) {
+                                    conflitto = 1;
+                                    break;
+                                }
+                            tempRichiesta = tempRichiesta->next;
                         }
-                        goto backtwo;
+                        if (conflitto) {
+                            printf("Errore: Il tecnico selezionato è già assegnato a un intervento nello stesso orario\n");
+                            return 0;
+                        }
                     }
 
                     currentRichiesta->stato = 1; // Pianificata
-                    printf("Stato aggiornato a Pianificata\n");
-                break;
+                    break;
                 case 2:
-                    if(currentRichiesta->stato != 1){ // Si può passare da "pianificata" a "in lavorazione"
+                    if (currentRichiesta->stato != 1) {
                         printf("Errore: Lo stato può essere aggiornato a In lavorazione solo se la richiesta è attualmente Pianificata\n");
-                        return;
+                        return 0;
                     }
                     currentRichiesta->stato = 2; // In lavorazione
-                    printf("Stato aggiornato a In lavorazione\n");
-                break;
+                    break;
                 case 3:
-                    if(currentRichiesta->stato != 2){ // Si può passare da "in lavorazione" a "conclusa"
+                    if (currentRichiesta->stato != 2) {
                         printf("Errore: Lo stato può essere aggiornato a Conclusa solo se la richiesta è attualmente In lavorazione\n");
-                        return;
+                        return 0;
                     }
                     currentRichiesta->stato = 3; // Conclusa
-                    printf("Stato aggiornato a Conclusa\n");
-                break;
+                    break;
                 case 4:
-                    if(currentRichiesta->stato != 3){ // Si può passare da "conclusa" a "annullata"
+                    if (currentRichiesta->stato != 3) {
                         printf("Errore: Lo stato può essere aggiornato a Annullata solo se la richiesta è attualmente Conclusa\n");
-                        return;
+                        return 0;
                     }
                     currentRichiesta->stato = 4; // Annullata
-                    printf("Stato aggiornato a Annullata\n");
-                break;
+                    break;
                 default:
                     printf("Scelta non valida\n");
+                    return 0;
             }
-        }else{
-            currentRichiesta = currentRichiesta->next;
+            aggiornaListaRichiesta(listaRichiesta);
+            return 1;
         }
+        currentRichiesta = currentRichiesta->next;
     }
-    aggiornaListaRichiesta(listaRichiesta);
+    printf("Errore: richiesta con codice %d non trovata\n", codice);
+    return 0;
 }
 
-// 1. Tipologia
-// 2. Codice Richiesta
-void ricercaRichieste(Richiesta *listaRichiesta) {
+void ricercaRichieste(Richiesta *listaRichiesta, short criterio, short tipologia, int codice) {
     Richiesta *current = listaRichiesta;
-    short choice;
 
-    printf("Quale criterio vuoi utilizzare per ricercare le richieste?\n");
-    printf("1. Tipologia\n2. Codice Richiesta\n");
-    scanf("%hd", &choice);
-
-    switch (choice){
+    switch (criterio){
         case 1:
             while (current != NULL) {
-
-                printf("Quale tipologia vuoi ricercare?\n(1. Hardware, 2. Software, 3. Reti, 4. Sicurezza, 5. Altro)\n");
-                short tipologia;
-                scanf("%hd", &tipologia);
-
                 if (current->tipologia == tipologia) {
                     printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
                         current->codice, current->luogo, current->tipologia, current->descrizione,
@@ -275,23 +261,105 @@ void ricercaRichieste(Richiesta *listaRichiesta) {
             break;
         case 2:
             while (current != NULL) {
-
-                printf("Inserisci il codice della richiesta da ricercare: ");
-                int codice;
-                scanf("%d", &codice);
-
                 if (current->codice == codice) {
                     printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
                         current->codice, current->luogo, current->tipologia, current->descrizione,
                         current->data.giorno, current->data.mese, current->data.anno,
                         current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
-                    break; // Esce dal ciclo dopo aver trovato la richiesta
+                    break;
                 }
                 current = current->next;
             }
             break;
         default:
             printf("Scelta non valida\n");
+            break;
+    }
+}
+
+void visualizzazioneRichieste(Richiesta *lista, short criterio, short tipologia, short stato, short urgenza, const char *luogo, int id_tecnico){
+    Richiesta *current;
+
+    switch (criterio){
+        case 1:
+            printf("Visualizzazione delle richieste per tipologia...\n");
+            Sleep(2000);
+            for (short tip = 1; tip <= NUM_SPECIALIZZAZIONI; tip++) {
+                current = lista;
+                while (current != NULL) {
+                    if (current->tipologia == tip) {
+                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
+                            current->codice, current->luogo, current->tipologia, current->descrizione,
+                            current->data.giorno, current->data.mese, current->data.anno,
+                            current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
+                    }
+                    current = current->next;
+                }
+            }
+            break;
+        case 2:
+            printf("Visualizzazione delle richieste per stato, saltando le richieste concluse e annullate...\n");
+            Sleep(2000);
+            for (short stato_corrente = 0; stato_corrente <= 2; stato_corrente++) {
+                current = lista;
+                while (current != NULL) {
+                    if (current->stato == stato_corrente) {
+                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
+                            current->codice, current->luogo, current->tipologia, current->descrizione,
+                            current->data.giorno, current->data.mese, current->data.anno,
+                            current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
+                    }
+                    current = current->next;
+                }
+            }
+            break;
+        case 3:
+            printf("Visualizzazione delle richieste per urgenza...\n");
+            Sleep(2000);
+            for (short urgenza_corrente = 3; urgenza_corrente >= 1; urgenza_corrente--) {
+                current = lista;
+                while (current != NULL) {
+                    if (current->urgenza == urgenza_corrente) {
+                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
+                            current->codice, current->luogo, current->tipologia, current->descrizione,
+                            current->data.giorno, current->data.mese, current->data.anno,
+                            current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
+                    }
+                    current = current->next;
+                }
+            }
+            break;
+        case 4:
+            printf("Visualizzazione delle richieste per luogo...\n");
+            Sleep(2000);
+            current = lista;
+            while (current != NULL) {
+                if (luogo != NULL && strcmp(current->luogo, luogo) == 0 && current->stato != 3 && current->stato != 4) {
+                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
+                        current->codice, current->luogo, current->tipologia, current->descrizione,
+                        current->data.giorno, current->data.mese, current->data.anno,
+                        current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
+                }
+                current = current->next;
+            }
+            break;
+        case 5:
+            printf("Visualizzazione delle richieste per tecnico...\n");
+            Sleep(2000);
+            current = lista;
+            while (current != NULL) {
+                if (current->id_tecnico == id_tecnico && current->stato != 3 && current->stato != 4) {
+                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
+                        current->codice, current->luogo, current->tipologia, current->descrizione,
+                        current->data.giorno, current->data.mese, current->data.anno,
+                        current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
+                }
+                current = current->next;
+            }
+            break;
+        default:
+            printf("Scelta non valida\n");
+            break;
     }
 }
 
@@ -396,28 +464,15 @@ void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico) {
         }
     }
 
-    int maxOreTecnico = 0;
     Tecnico *tecnicoAttivo = NULL;
-    Tecnico *currentTecnico = listaTecnico;
-    while (currentTecnico != NULL) {
-        int oreTotali = 0;
-        Richiesta *richiesta = listaRichiesta;
-        while (richiesta != NULL) {
-            if (richiesta->id_tecnico == currentTecnico->id && richiesta->stato == 3) {
-                int durata = richiesta->oraFine - richiesta->oraInizio;
-                if (durata > 0) {
-                    oreTotali += durata;
-                }
-            }
-            richiesta = richiesta->next;
+    int maxOreTecnico = 0;
+    while(current->next != NULL) {
+        int oreLavorate = orelavorate(listaRichiesta, current);
+        if (oreLavorate > maxOreTecnico) {
+            maxOreTecnico = oreLavorate;
+            tecnicoAttivo = current;
         }
-
-        currentTecnico->num_ore_lavorate = oreTotali;
-        if (oreTotali > maxOreTecnico || tecnicoAttivo == NULL) {
-            maxOreTecnico = oreTotali;
-            tecnicoAttivo = currentTecnico;
-        }
-        currentTecnico = currentTecnico->next;
+        current = current->next;
     }
 
     printf("\n========== REPORT STATISTICHE INTERVENTI ==========" "\n");
@@ -463,122 +518,13 @@ void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico) {
     printf("===================================================\n\n");
 }
 
-// per visualizzare le richieste in base a diversi criteri (1. Tipologia, 2. Stato, 3. Urgenza, 4. Luogo, 5. Tecnico)
-void visualizzazioneRichieste(Richiesta *lista){
+void deallocaListaRichieste(Richiesta *lista) {
     Richiesta *current = lista;
-    short choice;
+    Richiesta *next_node;
 
-    printf("Quale criterio vuoi utilizzare per visualizzare le richieste?\n");
-    printf("1. Tipologia\n2. Stato\n3. Urgenza\n4. Luogo\n5. Tecnico\n");
-    scanf("%hd", &choice);
-
-    switch (choice){
-        case 1:
-            printf("Visualizzazione delle richieste per tipologia...\n");    
-            Sleep(2000); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
-
-            short tipologia_corrente = 1;
-            while (tipologia_corrente <= NUM_SPECIALIZZAZIONI){
-                while (current != NULL) {
-
-                    // Si passa per ogni tipologia, stampando ogni tipo in ordine: 1. Hardware, 2. Software, 3. Reti, 4. Sicurezza, 5. Altro
-
-                    if (current->tipologia == tipologia_corrente) {
-                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %d/%d/%d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
-                            current->codice, current->luogo, current->tipologia, current->descrizione,
-                            current->data.giorno, current->data.mese, current->data.anno,
-                            current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
-                    }
-                    current = current->next;
-                }
-                tipologia_corrente += 1;
-            }
-
-        break;
-        case 2:
-            printf("Visualizzazione delle richieste per stato, saltando le richieste concluse e annullate...\n");    
-            Sleep(2000); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
-
-            short stato_corrente = 0; // Gli stati iniziano da 0 (aperta)
-            while (stato_corrente <= 2){ // "2. in lavorazione" è l'ultimo stato che vogliamo visualizzare, saltando "3. conclusa" e "4. annullata"
-                while (current != NULL) {
-
-                    /*
-                    Si passa per ogni stato, stampando ogni tipo in ordine: 0. aperta, 1. pianificata, 2. in lavorazione
-                    saltando però le richieste con stato 3. conclusa e 4. annullata, che vengono visualizzate in un report a parte
-                    */
-
-                    if (current->stato == stato_corrente) {
-                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
-                            current->codice, current->luogo, current->tipologia, current->descrizione,
-                            current->data.giorno, current->data.mese, current->data.anno,
-                            current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
-                    }
-                    current = current->next;
-                }
-                stato_corrente += 1;
-            }
-        break;
-        case 3:
-            printf("Visualizzazione delle richieste per urgenza...\n");    
-            Sleep(2000); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
-
-            short urgenza_corrente = 3; // Si parte dall'urgenza più alta (3. Alta) e si scende fino alla più bassa (1. Bassa)
-            while (urgenza_corrente >= 1){
-                while (current != NULL) {
-
-                    if (current->urgenza == urgenza_corrente) {
-                        printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
-                            current->codice, current->luogo, current->tipologia, current->descrizione,
-                            current->data.giorno, current->data.mese, current->data.anno,
-                            current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
-                    }
-                    current = current->next;
-                }
-                urgenza_corrente -= 1;
-            }
-        break;
-        case 4:
-            printf("Visualizzazione delle richieste per luogo...\n");    
-            Sleep(2000); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
-
-            char luogo_corrente[51];
-            printf("Inserisci il luogo da visualizzare: ");
-            scanf("%50s", luogo_corrente);
-
-                // Si visualizzano tutte le richieste per il luogo inserito, saltando le richieste concluse oppure annullate.
-
-            while (current != NULL) {
-                if (strcmp(current->luogo, luogo_corrente) == 0 && current->stato != 3 && current->stato != 4) { // Stato 3 = conclusa, Stato 4 = annullata
-                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
-                        current->codice, current->luogo, current->tipologia, current->descrizione,
-                        current->data.giorno, current->data.mese, current->data.anno,
-                        current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
-                }
-                current = current->next;
-            }
-        break;
-        case 5:
-            printf("Visualizzazione delle richieste per tecnico...\n");    
-            Sleep(2000); // Pausa di 2 secondi per permettere all'utente di leggere il messaggio prima di visualizzare le richieste
-
-            int id_tecnico_corrente;
-            printf("Inserisci l'ID del tecnico da visualizzare: ");
-            scanf("%d", &id_tecnico_corrente);
-
-                // Si visualizzano tutte le richieste assegnate al tecnico con l'ID inserito, saltando le richieste concluse oppure annullate.
-
-            while (current != NULL) {
-                if (current->id_tecnico == id_tecnico_corrente && current->stato != 3 && current->stato != 4) { // Stato 3 = conclusa, Stato 4 = annullata
-                    printf("Codice: %d, Luogo: %s, Tipologia: %hd, Descrizione: %s, Data: %02d/%02d/%04d, Ore: %02d-%02d, Urgenza: %hd, Stato: %hd, ID Tecnico: %d\n",
-                        current->codice, current->luogo, current->tipologia, current->descrizione,
-                        current->data.giorno, current->data.mese, current->data.anno,
-                        current->oraInizio, current->oraFine, current->urgenza, current->stato, current->id_tecnico);
-                }
-                current = current->next;
-            }
-        break;
-        default:
-            printf("Scelta non valida\n");
+    while (current != NULL) {
+        next_node = current->next; // 1. Salvi il puntatore al prossimo nodo
+        free(current);             // 2. Liberi il nodo corrente
+        current = next_node;       // 3. Passi al prossimo nodo
     }
 }

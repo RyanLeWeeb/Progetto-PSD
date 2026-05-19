@@ -15,7 +15,6 @@ typedef struct Tecnico {
     // 3. Reti
     // 4. Sicurezza
     // 5. Altro
-    int num_ore_lavorate; // Per il Report del tecnico più attivo
     struct Tecnico *next;
 } Tecnico;
 
@@ -26,12 +25,17 @@ Tecnico* creaListaTecnico();
 void aggiornaListaTecnico(Tecnico *listaTecnico);
 
 // Aggiunge un nuovo tecnico alla lista
-void aggiungiTecnico(Tecnico *listaTecnico);
+Tecnico *aggiungiTecnico(Tecnico *listaTecnico, const char *nome, int specializzazione);
+
+void rimuoviTecnico(Tecnico **listaTecnico, int id);
 
 // Calcola le ore lavorate da un tecnico sommando le ore delle richieste a lui assegnate
 int orelavorate(Richiesta *listaRichieste, Tecnico *tecnico);
 
 // Stampa le ore lavorate da ogni tecnico
 void stampaOreLavorateTecnici(Tecnico *listaTecnico, Richiesta *listaRichieste);
+
+// Dealloca la memoria della lista dei tecnici
+void deallocaListaTecnici(Tecnico *lista);
 
 #endif
