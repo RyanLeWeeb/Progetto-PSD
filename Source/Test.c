@@ -28,10 +28,18 @@ void test_verifica_registrazione_richiesta(Richiesta **lista) {
             
             found = 1;
             codice_da_rimuovere = current->codice; 
-            break; 
+            break;
         }
         current = current->next;
     }
+
+    printf("Dati inseriti: Luogo: %s, Tipologia: %hd, Urgenza: %hd, Descrizione: %s\n", 
+           "Ufficio 1", 1, 2, "Problema con il computer");
+    printf("Dati trovati: Luogo: %s, Tipologia: %hd, Urgenza: %hd, Descrizione: %s\n", 
+           found ? current->luogo : "N/A", 
+           found ? current->tipologia : -1, 
+           found ? current->urgenza : -1, 
+           found ? current->descrizione : "N/A");
 
     if (found) {
         printf("Test superato: richiesta registrata correttamente\n");
@@ -115,7 +123,7 @@ void test_verifica_assegnazione_tecnico_e_aggiornamento_stato(Richiesta **listaR
 
     // Controllo di sicurezza: se non abbiamo trovato i nodi appena creati, evitiamo di procedere
     if (codice_richiesta == -1 || id_tecnico == -1) {
-        printf("\nTest fallito: Impossibile recuperare i nodi di test creati.\n");
+        printf("Test fallito: Impossibile recuperare i nodi di test creati.\n");
         return;
     }
     
@@ -130,12 +138,41 @@ void test_verifica_assegnazione_tecnico_e_aggiornamento_stato(Richiesta **listaR
         reqTest->data.mese == 1 &&
         reqTest->data.anno == 2026) {
         
-        printf("\nTest superato: tecnico assegnato correttamente alla richiesta\n");
+        printf("Test superato: tecnico assegnato correttamente alla richiesta\n");
     } else {
-        printf("\nTest fallito: impossibile assegnare il tecnico alla richiesta o dati non corrispondenti\n");
+        printf("Test fallito: impossibile assegnare il tecnico alla richiesta o dati non corrispondenti\n");
     }
     
     // 4. Pulizia: rimuove la richiesta e il tecnico passando i doppi puntatori reali del main
     rimuoviRichiesta(listaRichieste, codice_richiesta);
     rimuoviTecnico(listaTecnici, id_tecnico);
+}
+
+void test_storico_completati(Richiesta **listaRichieste, Tecnico **listaTecnici) {
+    // Creazione del file "oracolo.txt" con dati da aspettarsi come output
+    FILE *file = fopen("Test/TC8_oracolo.txt", "w");
+    if (file == NULL) {
+        printf("Errore: Impossibile creare il file oracolo.txt\n");
+        return;
+    }
+
+    /*
+    Calcolo di tutte le variabili necessarie per il confronto manuale:
+        Conteggio ...
+    1. ... degli interventi completati (stato == 3)
+    2. ... degli interventi ancora aperti (stato == 0, 1, 2)
+    3. ... degli interventi annullati (stato == 4)
+    4. ... delle richieste per ogni tecnico
+    5. ... delle richieste per ogni tipologia
+    6. ... delle ore lavorate per ogni tecnico
+    7. ... del tecnico più attivo (quello con più ore lavorate)
+    8. ... della tipologia più comune (quella con più richieste)
+    9. ... della media di ore lavorate per intervento completato
+    10. ... delle aree con più richieste (luogo più comune)
+    */
+
+    fclose(file);
+    printf("File oracolo.txt creato con successo. Controllare il file manualmente per confrontare i dati.\n");
+
+    generaReport(*listaRichieste, *listaTecnici); // Genera il report che dovrebbe includere l'intervento completato
 }

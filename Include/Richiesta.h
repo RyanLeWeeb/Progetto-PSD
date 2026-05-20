@@ -35,6 +35,9 @@ typedef struct Richiesta {
 // Crea la lista delle richieste leggendo dal file "Richiesta.txt"
 Richiesta *creaListaRichiesta();
 
+// Crea una lista di richieste vuota (utilizzata per i test)
+Richiesta *creaListaRichiestaVuota();
+
 // Aggiorna il file con la lista delle richieste
 void aggiornaListaRichiesta(Richiesta *listaRichiesta);
 

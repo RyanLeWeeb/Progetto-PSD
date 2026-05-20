@@ -22,6 +22,9 @@ typedef struct Tecnico {
 // Crea una lista di tecnici leggendo i dati da un file
 Tecnico* creaListaTecnico();
 
+// Crea una lista di tecnici vuota (utilizzata per i test)
+Tecnico *creaListaTecnicoVuota();
+
 // Aggiorna il file con i dati della lista di tecnici
 void aggiornaListaTecnico(Tecnico *listaTecnico);
 

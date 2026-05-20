@@ -11,7 +11,7 @@ Tecnico* creaListaTecnico(){
     }
 
     Tecnico *head = NULL;
-    Tecnico *tail = NULL;
+    Tecnico *current = NULL;
     char line[256];
 
     while (fgets(line, sizeof(line), fp)) {
@@ -27,10 +27,10 @@ Tecnico* creaListaTecnico(){
             newNode->next = NULL;
             if (head == NULL) {
                 head = newNode;
-                tail = newNode;
+                current = newNode;
             } else {
-                tail->next = newNode;
-                tail = newNode;
+                current->next = newNode;
+                current = newNode;
             }
         } else {
             // Riga non valida, libera il nodo
@@ -40,6 +40,16 @@ Tecnico* creaListaTecnico(){
 
     fclose(fp);
     return head;
+}
+
+Tecnico *creaListaTecnicoVuota() {
+    FILE *fp = fopen("Test/Lista_Vuota_Tecnici.txt", "w");
+    if (fp == NULL) {
+        printf("Errore: Impossibile aprire il file Tecnico.txt\n");
+        exit(1);
+    }
+
+    return NULL; // Ritorna una lista vuota
 }
 
 void aggiornaListaTecnico(Tecnico *listaTecnico) {
@@ -86,12 +96,14 @@ Tecnico *aggiungiTecnico(Tecnico *listaTecnico, const char *nome, int specializz
     if (listaTecnico == NULL) {
         listaTecnico = newNode;
     } else {
-        Tecnico *tail = listaTecnico;
-        while (tail->next != NULL) {
-            tail = tail->next;
+        Tecnico *current = listaTecnico;
+        while (current->next != NULL) {
+            current = current->next;
         }
-        tail->next = newNode;
+        current->next = newNode;
     }
+
+    printf("Tecnico aggiunto con successo. ID: %d\n", newNode->id);
     aggiornaListaTecnico(listaTecnico);
     return listaTecnico;
 }

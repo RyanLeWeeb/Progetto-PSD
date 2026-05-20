@@ -32,16 +32,20 @@ int main() {
     Data data;
 
     do {
-        printf("\n========== GESTIONE RICHIESTE DI ASSISTENZA ==========\n");
-        printf("1. Aggiungi richiesta\n");
-        printf("2. Aggiungi Tecnico\n");
-        printf("3. Visualizza tutte le richieste\n");
-        printf("4. Ricerca richieste\n");
-        printf("5. Aggiorna stato richiesta\n");
-        printf("6. Visualizza storico interventi completati\n");
-        printf("7. Genera report\n");
-        printf("8. Esegui test\n");
-        printf("0. Esci\n");
+        printf("\n==================== GESTIONE CONDOMINIO ====================\n");
+        printf("AVVERTIMENTO:\nE' impossibile tornare indietro dopo aver inserito un dato, \nquindi inserirli con attenzione.\n\n");
+        printf(" 1.  Aggiungi richiesta\n");
+        printf(" 2.  Aggiungi Tecnico\n");
+        printf(" 3.  Rimuovi richiesta\n");
+        printf(" 4.  Rimuovi tecnico\n");
+        printf(" 5.  Visualizza tutte le richieste\n");
+        printf(" 6.  Ricerca richieste\n");
+        printf(" 7.  Aggiorna stato richiesta\n");
+        printf(" 8.  Visualizza interventi completati\n");
+        printf(" 9.  Genera report\n");
+        printf("10.  Esegui test\n");
+        printf(" 0.  Esci\n");
+        printf("==============================================================\n");
         printf("Scegli un'opzione: ");
         
         // Protezione contro input non numerici
@@ -54,7 +58,7 @@ int main() {
         svuotaBuffer(); // Consuma il newline residuo in modo sicuro
 
         switch (choice) {
-            case 1: 
+            case 1: // Aggiunta richiesta
                 printf("\nInserisci il luogo dell'intervento (MAX. 50 caratteri):\n");
                 if (fgets(luogo, sizeof(luogo), stdin) != NULL) {
                     luogo[strcspn(luogo, "\n")] = '\0';
@@ -73,7 +77,7 @@ int main() {
                 r = aggiungiRichiesta(r, luogo, tipologia, urgenza, descrizione);
                 break;
 
-            case 2: 
+            case 2: // Aggiunta tecnico
                 printf("Inserisci il nome del tecnico (MAX. 50 caratteri):\n");
                 if (fgets(nome, sizeof(nome), stdin) != NULL) {
                     nome[strcspn(nome, "\n")] = '\0';
@@ -84,7 +88,23 @@ int main() {
                 t = aggiungiTecnico(t, nome, specializzazione);
                 break;
 
-            case 3: 
+            case 3: // Rimozione richiesta
+                printf("Inserisci il codice della richiesta da rimuovere: ");
+                scanf("%d", &codice);
+                svuotaBuffer();
+
+                rimuoviRichiesta(&r, codice);
+                break;
+
+            case 4: // Rimozione tecnico
+                printf("Inserisci l'ID del tecnico da rimuovere: ");
+                scanf("%d", &id_tecnico);
+                svuotaBuffer();
+
+                rimuoviTecnico(&t, id_tecnico);
+                break;
+
+            case 5: // Visualizzazione richieste
                 printf("Quale criterio vuoi utilizzare per visualizzare le richieste?\n1. Tipologia\n2. Stato\n3. Urgenza\n4. Luogo\n5. Tecnico\n");
                 scanf("%hd", &criterio);
                 svuotaBuffer();
@@ -105,7 +125,7 @@ int main() {
                 }
                 break;
 
-            case 4: 
+            case 6: // Ricerca richieste
                 printf("Quale criterio vuoi utilizzare per ricercare le richieste?\n1. Tipologia\n2. Codice Richiesta\n");
                 scanf("%hd", &criterio);
                 if (criterio == 1) {
@@ -122,7 +142,7 @@ int main() {
                 svuotaBuffer();
                 break;
 
-            case 5: 
+            case 7: // Aggiornamento stato richiesta
                 printf("Inserisci il codice della richiesta: ");
                 scanf("%d", &codice);
                 printf("Quale nuovo stato vuoi assegnare alla richiesta?\n");
@@ -153,16 +173,16 @@ int main() {
                 }
                 break;
 
-            case 6: 
+            case 8: // Visualizzazione interventi completati
                 visualizzaStoricoInterventiCompletati(r);
                 break;
 
-            case 7: 
+            case 9: // Generazione report
                 generaReport(r, t);
                 break;
 
-            case 8: 
-                printf("Scegli quale test eseguire:\n");
+            case 10: // Esecuzione test
+                printf("\nScegli quale test eseguire:\n");
                 printf("1. Verifica registrazione richiesta\n");
                 printf("2. Verifica registrazione tecnico\n");
                 printf("3. Verifica assegnazione tecnico e aggiornamento stato\n");
@@ -171,19 +191,26 @@ int main() {
                 if (scanf("%d", &choice_two) == 1) {
                     svuotaBuffer();
                     switch (choice_two) {
-                        case 1:
-                            test_verifica_registrazione_richiesta(&r);
+                        case 1: // Verifica registrazione richiesta
+                            Richiesta *templistarichiesta = creaListaRichiestaVuota(); // Lista temporanea per test
+                            test_verifica_registrazione_richiesta(&templistarichiesta);
+                            deallocaListaRichieste(templistarichiesta); // Pulizia della lista temporanea
                             break;
-                        case 2:
-                            test_verifica_registrazione_tecnico(&t);
+
+                        case 2: // Verifica registrazione tecnico
+                            Tecnico *templistatecnici = creaListaTecnicoVuota(); // Lista temporanea per test
+                            test_verifica_registrazione_tecnico(&templistatecnici);
+                            deallocaListaTecnici(templistatecnici); // Pulizia della lista temporanea
                             break;
-                        case 3:
+
+                        case 3: // Verifica assegnazione tecnico e aggiornamento stato
                             test_verifica_assegnazione_tecnico_e_aggiornamento_stato(&r, &t);
                             break;
+
                         default:
                             printf("Scelta non valida\n");
                     }
-                } else {
+                } else { // Fallback per input invalido
                     printf("Input non valido.\n");
                     svuotaBuffer();
                 }

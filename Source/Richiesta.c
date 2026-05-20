@@ -14,7 +14,7 @@ Richiesta *creaListaRichiesta(){
     }
 
     Richiesta *head = NULL;
-    Richiesta *tail = NULL;
+    Richiesta *current = NULL;
     char line[256];
 
     while (fgets(line, sizeof(line), fp)) {
@@ -34,10 +34,10 @@ Richiesta *creaListaRichiesta(){
             newNode->next = NULL;
             if (head == NULL) {
                 head = newNode;
-                tail = newNode;
+                current = newNode;
             } else {
-                tail->next = newNode;
-                tail = newNode;
+                current->next = newNode;
+                current = newNode;
             }
         } else {
             // Riga non valida, libera il nodo
@@ -47,6 +47,16 @@ Richiesta *creaListaRichiesta(){
 
     fclose(fp);
     return head;
+}
+
+Richiesta *creaListaRichiestaVuota() {
+    FILE *fp = fopen("Test/Lista_Vuota_Richieste.txt", "w");
+    if (fp == NULL) {
+        printf("Errore: Impossibile aprire il file Richiesta.txt\n");
+        exit(1);
+    }
+
+    return NULL; // Ritorna una lista vuota
 }
 
 void aggiornaListaRichiesta(Richiesta *listaRichiesta){
@@ -101,11 +111,11 @@ Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, const char *luogo, short
     if (listaRichiesta == NULL) {
         listaRichiesta = newNode;
     } else {
-        Richiesta *tail = listaRichiesta;
-        while (tail->next != NULL) {
-            tail = tail->next;
+        Richiesta *current = listaRichiesta;
+        while (current->next != NULL) {
+            current = current->next;
         }
-        tail->next = newNode;
+        current->next = newNode;
     }
 
     newNode->data.giorno = 0; // Data non ancora pianificata
@@ -115,6 +125,7 @@ Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, const char *luogo, short
     newNode->oraFine = 0; // Orario di fine non ancora pianificato
     newNode->id_tecnico = 0; // Tecnico non ancora assegnato
 
+    printf("Richiesta aggiunta con successo. Codice: %d\n", newNode->codice);
     aggiornaListaRichiesta(listaRichiesta);
     return listaRichiesta;
 }
@@ -148,8 +159,8 @@ int aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *lista
         if (currentRichiesta->codice == codice) {
             switch (nuovoStato){
                 case 1:
-                printf("\nStato della richiesta prima dell'aggiornamento: %hd\n", currentRichiesta->stato);
-                printf("\nTipologia: %hd, Urgenza: %hd", currentRichiesta->tipologia, currentRichiesta->urgenza);
+                printf("Stato della richiesta prima dell'aggiornamento: %hd\n", currentRichiesta->stato);
+                printf("Tipologia: %hd, Urgenza: %hd\n", currentRichiesta->tipologia, currentRichiesta->urgenza);
                 
                     if (currentRichiesta->stato != 0) {
                         printf("Errore: Lo stato può essere aggiornato a Pianificata solo se la richiesta è attualmente Aperta\n");
