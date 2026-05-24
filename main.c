@@ -15,7 +15,7 @@ void svuotaBuffer() {
 int main() {
     Richiesta *r = creaListaRichiesta();
     Tecnico *t = creaListaTecnico();
-
+    
     int codice;
     int choice;
     char luogo[51];
@@ -74,7 +74,7 @@ int main() {
                 if (fgets(descrizione, sizeof(descrizione), stdin) != NULL) {
                     descrizione[strcspn(descrizione, "\n")] = '\0';
                 }
-                r = aggiungiRichiesta(r, luogo, tipologia, urgenza, descrizione);
+                r = aggiungiRichiesta(r, RICHIESTAFILE, luogo, tipologia, urgenza, descrizione);
                 break;
 
             case 2: // Aggiunta tecnico
@@ -85,7 +85,7 @@ int main() {
                 printf("Inserisci la specializzazione del tecnico:\n1. Hardware\n2. Software\n3. Reti\n4. Sicurezza\n5. Altro\n");
                 scanf("%hd", &specializzazione);
                 svuotaBuffer();
-                t = aggiungiTecnico(t, nome, specializzazione);
+                t = aggiungiTecnico(t, TECNICOFILE, nome, specializzazione);
                 break;
 
             case 3: // Rimozione richiesta
@@ -93,7 +93,7 @@ int main() {
                 scanf("%d", &codice);
                 svuotaBuffer();
 
-                rimuoviRichiesta(&r, codice);
+                rimuoviRichiesta(&r, RICHIESTAFILE, codice);
                 break;
 
             case 4: // Rimozione tecnico
@@ -101,7 +101,7 @@ int main() {
                 scanf("%d", &id_tecnico);
                 svuotaBuffer();
 
-                rimuoviTecnico(&t, id_tecnico);
+                rimuoviTecnico(&t, TECNICOFILE, id_tecnico);
                 break;
 
             case 5: // Visualizzazione richieste
@@ -166,7 +166,7 @@ int main() {
                 }
                 svuotaBuffer();
                 
-                if (aggiornaStatoRichiesta(r, codice, t, stato, id_tecnico, oraInizio, oraFine, data)) {
+                if (aggiornaStatoRichiesta(r, RICHIESTAFILE, codice, t, stato, id_tecnico, oraInizio, oraFine, data)) {
                     printf("Stato aggiornato con successo.\n");
                 } else {
                     printf("Impossibile aggiornare lo stato della richiesta.\n");
@@ -182,29 +182,65 @@ int main() {
                 break;
 
             case 10: // Esecuzione test
-                printf("\nScegli quale test eseguire:\n");
+                printf("\n======================= GESTIONE DEI TEST ====================\n");
                 printf("1. Verifica registrazione richiesta\n");
                 printf("2. Verifica registrazione tecnico\n");
-                printf("3. Verifica assegnazione tecnico e aggiornamento stato\n");
+                printf("3. Verifica assegnazione tecnico *\n");
+                printf("   * comprende anche:\n   - Test della pianificazione e gestione conflitti\n");
+                printf("   - Test dell'aggiornamento dello stato della richiesta.\n");
+                printf("4. Test generazione report\n");
+                printf("5. Test sulla ricerca e filtri\n");
+                printf("6. Verifica dello storico interventi\n");
+                printf("==============================================================\n");
                 printf("Scegli un'opzione: ");
                 int choice_two;
                 if (scanf("%d", &choice_two) == 1) {
                     svuotaBuffer();
+                    printf("\n");
+
                     switch (choice_two) {
                         case 1: // Verifica registrazione richiesta
-                            Richiesta *templistarichiesta = creaListaRichiestaVuota(); // Lista temporanea per test
-                            test_verifica_registrazione_richiesta(&templistarichiesta);
-                            deallocaListaRichieste(templistarichiesta); // Pulizia della lista temporanea
+                            Richiesta *templistarichieste = creaListaRichiestaTest(); // Lista temporanea per test
+                            test_verifica_registrazione_richiesta(&templistarichieste);
+                            deallocaListaRichieste(templistarichieste); // Pulizia della lista temporanea
                             break;
 
                         case 2: // Verifica registrazione tecnico
-                            Tecnico *templistatecnici = creaListaTecnicoVuota(); // Lista temporanea per test
+                            Tecnico *templistatecnici = creaListaTecnicoTest(); // Lista temporanea per test
                             test_verifica_registrazione_tecnico(&templistatecnici);
                             deallocaListaTecnici(templistatecnici); // Pulizia della lista temporanea
                             break;
 
                         case 3: // Verifica assegnazione tecnico e aggiornamento stato
                             test_verifica_assegnazione_tecnico_e_aggiornamento_stato(&r, &t);
+                            break;
+
+                        case 4: // Verifica funzionamento repor
+                            test_report(&r, &t);
+                            break;
+                        
+                        case 5:
+                            printf("ATTENZIONE: Controllare manualmente se tutte le richieste visualizzate corrispondono.\n\n");
+
+                            printf("Quale criterio vuoi utilizzare per ricercare le richieste?\n1. Tipologia\n2. Codice Richiesta\n");
+                            scanf("%hd", &criterio);
+                            if (criterio == 1) {
+                                printf("Quale tipologia vuoi ricercare?\n(1. Hardware, 2. Software, 3. Reti, 4. Sicurezza, 5. Altro)\n");
+                                scanf("%hd", &tipologia);
+                                ricercaRichieste(r, criterio, tipologia, 0);
+                            } else if (criterio == 2) {
+                                printf("Inserisci il codice della richiesta da ricercare: ");
+                                scanf("%d", &codice);
+                                ricercaRichieste(r, criterio, 0, codice);
+                            } else {
+                                printf("Scelta non valida\n");
+                            }
+                            svuotaBuffer();
+                            break;
+
+                        case 6:
+                            printf("ATTENZIONE: Controllare manualmente se lo storico visualizzato corrisponde.\n\n");
+                            test_storico_interventi(r);
                             break;
 
                         default:

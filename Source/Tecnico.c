@@ -42,8 +42,8 @@ Tecnico* creaListaTecnico(){
     return head;
 }
 
-Tecnico *creaListaTecnicoVuota() {
-    FILE *fp = fopen("Test/Lista_Vuota_Tecnici.txt", "w");
+Tecnico *creaListaTecnicoTest() {
+    FILE *fp = fopen("Test/Tecnici.txt", "w");
     if (fp == NULL) {
         printf("Errore: Impossibile aprire il file Tecnico.txt\n");
         exit(1);
@@ -52,10 +52,10 @@ Tecnico *creaListaTecnicoVuota() {
     return NULL; // Ritorna una lista vuota
 }
 
-void aggiornaListaTecnico(Tecnico *listaTecnico) {
-    FILE *fp = fopen("Liste/Tecnico.txt", "w");
+void aggiornaListaTecnico(Tecnico *listaTecnico, char *filename) {
+    FILE *fp = fopen(filename, "w");
     if (fp == NULL) {
-        printf("Errore: Impossibile aprire il file Tecnico.txt\n");
+        printf("Errore: Impossibile aprire il file %s\n", filename);
         exit(1);
     }
 
@@ -68,7 +68,7 @@ void aggiornaListaTecnico(Tecnico *listaTecnico) {
     fclose(fp);
 }
 
-Tecnico *aggiungiTecnico(Tecnico *listaTecnico, const char *nome, int specializzazione){
+Tecnico *aggiungiTecnico(Tecnico *listaTecnico, char *filename, const char *nome, int specializzazione) {
     Tecnico *newNode = malloc(sizeof(Tecnico));
     if (newNode == NULL) {
         printf("Errore: Memoria non allocabile\n");
@@ -104,11 +104,11 @@ Tecnico *aggiungiTecnico(Tecnico *listaTecnico, const char *nome, int specializz
     }
 
     printf("Tecnico aggiunto con successo. ID: %d\n", newNode->id);
-    aggiornaListaTecnico(listaTecnico);
+    aggiornaListaTecnico(listaTecnico, filename);
     return listaTecnico;
 }
 
-void rimuoviTecnico(Tecnico **listaTecnico, int id){
+void rimuoviTecnico(Tecnico **listaTecnico, char *filename, int id){
     if (*listaTecnico == NULL) {
         printf("La lista dei tecnici è vuota.\n");
         return;
@@ -125,7 +125,7 @@ void rimuoviTecnico(Tecnico **listaTecnico, int id){
                 previous->next = current->next; 
             }
             
-            aggiornaListaTecnico(*listaTecnico);
+            aggiornaListaTecnico(*listaTecnico, filename);
             
             free(current); 
             

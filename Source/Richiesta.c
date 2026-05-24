@@ -49,8 +49,8 @@ Richiesta *creaListaRichiesta(){
     return head;
 }
 
-Richiesta *creaListaRichiestaVuota() {
-    FILE *fp = fopen("Test/Lista_Vuota_Richieste.txt", "w");
+Richiesta *creaListaRichiestaTest() {
+    FILE *fp = fopen("Test/Richieste.txt", "w");
     if (fp == NULL) {
         printf("Errore: Impossibile aprire il file Richiesta.txt\n");
         exit(1);
@@ -59,14 +59,14 @@ Richiesta *creaListaRichiestaVuota() {
     return NULL; // Ritorna una lista vuota
 }
 
-void aggiornaListaRichiesta(Richiesta *listaRichiesta){
-    FILE *fp = fopen("Liste/Richiesta.txt", "w");
+void aggiornaListaRichiesta(Richiesta *lista, char *filename) {
+    FILE *fp = fopen(filename, "w");
     if (fp == NULL) {
-        printf("Errore: Impossibile aprire il file Richiesta.txt\n");
+        printf("Errore: Impossibile aprire il file %s\n", filename);
         exit(1);
     }
 
-    Richiesta *current = listaRichiesta;
+    Richiesta *current = lista;
     while (current != NULL) {
         fprintf(fp, "%d-%s-%hd-%s-%02d/%02d/%04d-%d-%d-%hd-%hd-%d\n",
                 current->codice, current->luogo, current->tipologia, current->descrizione,
@@ -78,7 +78,7 @@ void aggiornaListaRichiesta(Richiesta *listaRichiesta){
     fclose(fp);
 }
 
-Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, const char *luogo, short tipologia, short urgenza, const char *descrizione){
+Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, char *filename, const char *luogo, short tipologia, short urgenza, const char *descrizione){
     Richiesta *newNode = malloc(sizeof(Richiesta));
     if (newNode == NULL) {
         printf("Errore: Memoria non allocabile\n");
@@ -126,11 +126,11 @@ Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, const char *luogo, short
     newNode->id_tecnico = 0; // Tecnico non ancora assegnato
 
     printf("Richiesta aggiunta con successo. Codice: %d\n", newNode->codice);
-    aggiornaListaRichiesta(listaRichiesta);
+    aggiornaListaRichiesta(listaRichiesta, filename);
     return listaRichiesta;
 }
 
-void rimuoviRichiesta(Richiesta **listaRichiesta, int codice) {
+void rimuoviRichiesta(Richiesta **listaRichiesta, char *filename, int codice) {
     Richiesta *current = *listaRichiesta;
     Richiesta *prev = NULL;
 
@@ -142,7 +142,7 @@ void rimuoviRichiesta(Richiesta **listaRichiesta, int codice) {
             } else {
                 prev->next = current->next; // Rimuove il nodo corrente
             }
-            aggiornaListaRichiesta(*listaRichiesta);
+            aggiornaListaRichiesta(*listaRichiesta, filename);
             printf("Richiesta con codice %d rimossa con successo.\n", codice);
             return;
         }
@@ -152,7 +152,7 @@ void rimuoviRichiesta(Richiesta **listaRichiesta, int codice) {
     printf("Errore: richiesta con codice %d non trovata.\n", codice);
 }
 
-int aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *listaTecnici, short nuovoStato, int id_tecnico, int oraInizio, int oraFine, Data data) {
+int aggiornaStatoRichiesta(Richiesta *listaRichiesta, char *filename,int codice, Tecnico *listaTecnici, short nuovoStato, int id_tecnico, int oraInizio, int oraFine, Data data) {
     Richiesta *currentRichiesta = listaRichiesta;
 
     while (currentRichiesta != NULL) {
@@ -243,7 +243,7 @@ int aggiornaStatoRichiesta(Richiesta *listaRichiesta, int codice, Tecnico *lista
                     printf("Scelta non valida\n");
                     return 0;
             }
-            aggiornaListaRichiesta(listaRichiesta);
+            aggiornaListaRichiesta(listaRichiesta, filename);
             return 1;
         }
         currentRichiesta = currentRichiesta->next;
@@ -291,7 +291,7 @@ void visualizzazioneRichieste(Richiesta *lista, short criterio, short tipologia,
     switch (criterio){
         case 1:
             printf("Visualizzazione delle richieste per tipologia...\n");
-            Sleep(2000);
+            Sleep(500);
             for (short tip = 1; tip <= NUM_SPECIALIZZAZIONI; tip++) {
                 current = lista;
                 while (current != NULL) {
@@ -307,7 +307,7 @@ void visualizzazioneRichieste(Richiesta *lista, short criterio, short tipologia,
             break;
         case 2:
             printf("Visualizzazione delle richieste per stato, saltando le richieste concluse e annullate...\n");
-            Sleep(2000);
+            Sleep(500);
             for (short stato_corrente = 0; stato_corrente <= 2; stato_corrente++) {
                 current = lista;
                 while (current != NULL) {
@@ -323,7 +323,7 @@ void visualizzazioneRichieste(Richiesta *lista, short criterio, short tipologia,
             break;
         case 3:
             printf("Visualizzazione delle richieste per urgenza...\n");
-            Sleep(2000);
+            Sleep(500);
             for (short urgenza_corrente = 3; urgenza_corrente >= 1; urgenza_corrente--) {
                 current = lista;
                 while (current != NULL) {
@@ -339,7 +339,7 @@ void visualizzazioneRichieste(Richiesta *lista, short criterio, short tipologia,
             break;
         case 4:
             printf("Visualizzazione delle richieste per luogo...\n");
-            Sleep(2000);
+            Sleep(500);
             current = lista;
             while (current != NULL) {
                 if (luogo != NULL && strcmp(current->luogo, luogo) == 0 && current->stato != 3 && current->stato != 4) {
@@ -353,7 +353,7 @@ void visualizzazioneRichieste(Richiesta *lista, short criterio, short tipologia,
             break;
         case 5:
             printf("Visualizzazione delle richieste per tecnico...\n");
-            Sleep(2000);
+            Sleep(500);
             current = lista;
             while (current != NULL) {
                 if (current->id_tecnico == id_tecnico && current->stato != 3 && current->stato != 4) {

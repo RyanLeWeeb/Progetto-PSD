@@ -1,0 +1,24 @@
+
+========== REPORT STATISTICHE INTERVENTI ==========
+Interventi per tipologia:
+  Hardware: 0
+  Software: 0
+  Reti: 0
+  Sicurezza: 0
+  Altro: 0
+
+Interventi aperti: 0
+Interventi chiusi: 0
+  - Aperte: 0
+  - Pianificate: 0
+  - In lavorazione: 0
+  - Concluse: 0
+  - Annullate: 0
+
+Tempo medio di completamento: nessun intervento concluso
+
+Tecnico piu' attivo: nessun tecnico trovato
+
+Aree con piu' problemi: nessuna richiesta registrata
+===================================================
+

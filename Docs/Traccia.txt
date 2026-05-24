@@ -51,14 +51,14 @@ sull’andamento delle attività.
 // MANCA TUTTA LA PARTE SOTTO
 
 Casi di Test:
-    ● Verifica della registrazione delle richieste
-    ● Test della registrazione dei tecnici
-    ● Verifica dell’assegnazione corretta
-    ● Test della pianificazione e gestione conflitti
-    ● Verifica aggiornamento stato
-    ● Test della ricerca e filtri
-    ● Verifica dello storico interventi
-    ● Test della generazione dei report
+    ● Verifica della registrazione delle richieste          FATTO
+    ● Test della registrazione dei tecnici                  FATTO
+    ● Verifica dell’assegnazione corretta                   FATTO
+    ● Test della pianificazione e gestione conflitti        FATTO?
+    ● Verifica aggiornamento stato                          FATTO
+    ● Test della ricerca e filtri                           FATTO
+    ● Verifica dello storico interventi                     
+    ● Test della generazione dei report                     FATTO
 Report:
     ● Motivazione della Scelta dell'ADT: Illustrare perché specifici ADT sono stati
     scelti per gestire richieste, tecnici, pianificazione, priorità e ricerche.
