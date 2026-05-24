@@ -48,12 +48,14 @@ Richiesta *creaListaRichiestaTest();
 
 // Aggiorna il file con la lista delle richieste
 void aggiornaListaRichiesta(Richiesta *lista, char *filename);
-//    - Pre: l è una lista di richieste in cui è presente almeno una richiesta.
+//    - Pre: "lista" è una lista di richieste in cui è presente almeno una richiesta.
+//           "filename" è la stringa corrispondente al documento di testo dove vengono memorizzate le richieste
+//
 //    - Post: come side-effect, il file di testo "Richiesta.txt" viene ri-scritto con tutte le richieste presenti nella lista data.
 
 // Aggiunge una nuova richiesta alla lista
 Richiesta *aggiungiRichiesta(Richiesta *listaRichiesta, char *filename, const char *luogo, short tipologia, short urgenza, const char *descrizione);
-//    - Pre: filename deve essere una stringa valida per un documento di testo (.txt)
+//    - Pre: "filename" è la stringa corrispondente al documento di testo dove vengono memorizzate le richieste
 //    - Post: r è la lista di richieste che conterrà le richieste di "listaRichiesta" e la richiesta aggiunta.
 
 // Rimuove una richiesta specifica dalla lista di richieste
