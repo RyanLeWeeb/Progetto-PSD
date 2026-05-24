@@ -48,8 +48,6 @@ sull’andamento delle attività.
     ○ tecnico più attivo
     ○ aree con più problemi
 
-// MANCA TUTTA LA PARTE SOTTO
-
 Casi di Test:
     ● Verifica della registrazione delle richieste          FATTO
     ● Test della registrazione dei tecnici                  FATTO
@@ -60,9 +58,9 @@ Casi di Test:
     ● Verifica dello storico interventi                     
     ● Test della generazione dei report                     FATTO
 Report:
-    ● Motivazione della Scelta dell'ADT: Illustrare perché specifici ADT sono stati
+    ● Motivazione della Scelta dell'ADT: Illustrare perché specifici ADT sono stati             FATTO
     scelti per gestire richieste, tecnici, pianificazione, priorità e ricerche.
-    ● Progettazione: Descrivere l’architettura del sistema e l’interazione tra i moduli.
-    ● Specifica Sintattica e Semantica: Descrivere operazioni, pre/post condizioni,
+    ● Progettazione: Descrivere l’architettura del sistema e l’interazione tra i moduli.        FATTO
+    ● Specifica Sintattica e Semantica: Descrivere operazioni, pre/post condizioni,             FATTO
     input/output ed effetti collaterali.
-    ● Razionale dei Casi di Test
+    ● Razionale dei Casi di Test                                                                FATTO

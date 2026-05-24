@@ -1,0 +1,30 @@
+Motivazione della Scelta dell'ADT
+
+Richieste e Tecnici (Liste Concatenate Dinamiche)
+
+- Scelta: 
+Strutture (struct) allocate dinamicamente e collegate tramite puntatori.
+
+- Motivazione: 
+Il numero di guasti e di tecnici è imprevedibile. 
+La lista permette alla memoria di espandersi (malloc) o 
+restringersi (free) in tempo reale all'inserimento o alla cancellazione di un elemento, 
+evitando i limiti fissi e gli sprechi di spazio tipici degli array statici.
+
+Ricerche e Pianificazione (Scorrimento Lineare)
+
+- Scelta: 
+Ispezione sequenziale dei nodi dall'inizio alla fine.
+
+- Motivazione: 
+Data la mole contenuta di dati del condominio, scorrere la lista è la soluzione più semplice e 
+flessibile per applicare al volo qualsiasi tipo di filtro (per luogo, stato o data) richiesto dall'utente.
+
+Gestione della Priorità e del Tempo (Campi dedicati e Struct Data)
+
+- Scelta: 
+Variabile short urgenza e sotto-struttura Data (giorno, mese, anno).
+
+- Motivazione: 
+Inserire l'urgenza direttamente nella struct della richiesta azzera la necessità di complesse code a priorità (basta un controllo numerico). 
+L'ADT Data isola la gestione del tempo, rendendo immediato il confronto tra gli interventi per evitare che un tecnico si sovrapponga su due appuntamenti diversi.

@@ -1,0 +1,44 @@
+Progettazione
+
+
+1. Architettura del Sistema
+Il programma è strutturato in modo modulare. Invece di avere un unico file gigante, il codice è diviso in 5 moduli logici. Ognuno ha un file .h (che dichiara cosa fa il modulo) e un file .c (con il codice vero e proprio).
+
+- main.c: 
+Mostra il menu a schermo, prende i comandi dell'utente e chiama gli altri moduli per farli lavorare.
+
+- Modulo Richiesta (Richiesta.h/.c): 
+Gestisce le richieste di guasto del condominio. 
+Contiene la struttura dati (lista concatenata) e le funzioni per aggiungere, cercare, stampare lo storico e fare statistiche sulle richieste.
+
+- Modulo Tecnico (Tecnico.h/.c): 
+Gestisce i tecnici, contiene la lista dei tecnici, 
+permette di aggiungerli/rimuoverli e calcola le ore di lavoro complessive di ciascuno.
+
+- Modulo Utility (Utility.h/.c): 
+Contiene funzioni matematiche e logiche riutilizzabili ovunque, 
+come il confronto tra date e il controllo della sovrapposizione degli orari.
+
+- Modulo Test (Test.h/.c): 
+Serve solo a verificare che tutto funzioni. 
+Esegue simulazioni automatiche (oracoli di test) per assicurarsi che i dati inseriti siano corretti senza intaccare il menu principale.
+
+2. Interazione tra i Moduli
+
+- I moduli non lavorano da soli, ma si scambiano informazioni seguendo una gerarchia precisa.
+
+- Il main controlla tutti: Include tutti i moduli (.h) per poter avviare le funzioni di gestione e i test.
+
+- Scambio dati tra Richieste e Tecnici: 
+I moduli Richiesta e Tecnico interagiscono tra loro. Ad esempio, 
+per calcolare le ore lavorate da un tecnico, il modulo Tecnico deve scorrere la lista delle richieste nel modulo Richiesta e 
+contare quelle contrassegnate come "concluse" con il suo ID.
+
+- Uso di Utility: 
+Sia Richiesta che Tecnico includono Utility.h ogni volta che devono gestire date o orari di un intervento.
+
+Passaggio per riferimento (Puntatori): 
+Poiché i dati sono salvati in liste concatenate dinamiche, 
+i moduli comunicano passandosi i puntatori della testa della lista (es. Richiesta *lista). 
+Quando una funzione deve modificare la lista (es. aggiungere o rimuovere un elemento), 
+viene usato un doppio puntatore (Richiesta lista) per aggiornare direttamente la memoria.
