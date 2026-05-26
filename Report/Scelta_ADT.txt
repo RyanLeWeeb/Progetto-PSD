@@ -1,5 +1,6 @@
 Motivazione della Scelta dell'ADT
 
+
 Richieste e Tecnici (Liste Concatenate Dinamiche)
 
 - Scelta: 
