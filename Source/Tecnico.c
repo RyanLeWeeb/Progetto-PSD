@@ -23,7 +23,7 @@ Tecnico* creaListaTecnico(){
         }
 
         // Parse the line: nome-ID-specializzazione-num_ore_lavorate
-        if (sscanf(line, "%50[^-]-%d-%d-%d", newNode->nome, &newNode->id, &newNode->specializzazione, &newNode->num_ore_lavorate) == 4) {
+        if (sscanf(line, "%50[^-]-%d-%d", newNode->nome, &newNode->id, &newNode->specializzazione) == 3) {
             newNode->next = NULL;
             if (head == NULL) {
                 head = newNode;
@@ -61,7 +61,7 @@ void aggiornaListaTecnico(Tecnico *listaTecnico, char *filename) {
 
     Tecnico *current = listaTecnico;
     while (current != NULL) {
-        fprintf(fp, "%s-%d-%d-%d\n", current->nome, current->id, current->specializzazione, current->num_ore_lavorate);
+        fprintf(fp, "%s-%d-%d\n", current->nome, current->id, current->specializzazione);
         current = current->next;
     }
 
@@ -90,7 +90,6 @@ Tecnico *aggiungiTecnico(Tecnico *listaTecnico, char *filename, const char *nome
     strncpy(newNode->nome, nome, sizeof(newNode->nome) - 1);
     newNode->nome[sizeof(newNode->nome) - 1] = '\0';
     newNode->specializzazione = specializzazione;
-    newNode->num_ore_lavorate = 0;
     newNode->next = NULL;
 
     if (listaTecnico == NULL) {

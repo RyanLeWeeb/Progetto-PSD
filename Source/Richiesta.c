@@ -143,6 +143,7 @@ void rimuoviRichiesta(Richiesta **listaRichiesta, char *filename, int codice) {
                 prev->next = current->next; // Rimuove il nodo corrente
             }
             aggiornaListaRichiesta(*listaRichiesta, filename);
+            free(current);
             printf("Richiesta con codice %d rimossa con successo.\n", codice);
             return;
         }
@@ -475,20 +476,12 @@ void generaReport(Richiesta *listaRichiesta, Tecnico *listaTecnico) {
     int maxOreTecnico = 0;
     Tecnico *tecnicoAttivo = NULL;
     Tecnico *currentTecnico = listaTecnico;
+    
     while (currentTecnico != NULL) {
-        int oreTotali = 0;
-        Richiesta *richiesta = listaRichiesta;
-        while (richiesta != NULL) {
-            if (richiesta->id_tecnico == currentTecnico->id && richiesta->stato == 3) {
-                int durata = richiesta->oraFine - richiesta->oraInizio;
-                if (durata > 0) {
-                    oreTotali += durata;
-                }
-            }
-            richiesta = richiesta->next;
-        }
-
-        currentTecnico->num_ore_lavorate = oreTotali;
+        // Calcoli le ore al volo per il tecnico corrente
+        int oreTotali = orelavorate(listaRichiesta, currentTecnico);
+    
+        // Il calcolo del massimo rimane identico usando la variabile locale oreTotali
         if (oreTotali > maxOreTecnico || tecnicoAttivo == NULL) {
             maxOreTecnico = oreTotali;
             tecnicoAttivo = currentTecnico;

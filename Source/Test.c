@@ -15,6 +15,7 @@ void test_verifica_registrazione_richiesta(Richiesta **lista) {
     // 2. Usiamo un puntatore singolo locale per scorrere la lista in sicurezza
     Richiesta *current = *lista;
     int found = 0;
+    int codice_da_rimuovere = -1;
 
     while (current != NULL) {
         if (strcmp(current->luogo, "Ufficio 1") == 0 && 
@@ -26,6 +27,7 @@ void test_verifica_registrazione_richiesta(Richiesta **lista) {
             current->oraInizio == 0 && current->oraFine == 0) {
             
             found = 1;
+            codice_da_rimuovere = current->codice;
             break;
         }
         current = current->next;
@@ -39,11 +41,14 @@ void test_verifica_registrazione_richiesta(Richiesta **lista) {
            found ? current->urgenza : -1, 
            found ? current->descrizione : "N/A");
 
+           
+
     if (found) {
         printf("Test superato: richiesta registrata correttamente\n");
     } else {
         printf("Test fallito: richiesta non trovata o dati non corretti\n");
     }
+    rimuoviRichiesta(lista, TEST_RICHIESTE_FILE, codice_da_rimuovere);
 }
 
 void test_verifica_registrazione_tecnico(Tecnico **lista) {
@@ -56,13 +61,14 @@ void test_verifica_registrazione_tecnico(Tecnico **lista) {
     // 2. Usiamo un puntatore di supporto per scorrere la lista partendo dalla nuova testa
     Tecnico *current = *lista;
     int found = 0;
+    int id_da_rimuovere = -1;
 
     while (current != NULL) {
         if (strcmp(current->nome, "Mario Rossi") == 0 && 
-            current->specializzazione == 2 && 
-            current->num_ore_lavorate == 0) {
+            current->specializzazione == 2) {
             
             found = 1;
+            id_da_rimuovere = current->id;
             break; 
         }
         current = current->next;
@@ -73,6 +79,7 @@ void test_verifica_registrazione_tecnico(Tecnico **lista) {
     } else {
         printf("Test fallito: tecnico non trovato o dati non corretti\n");
     }
+    rimuoviTecnico(lista, TEST_TECNICO_FILE, id_da_rimuovere);
 }
 
 void test_verifica_assegnazione_tecnico_e_aggiornamento_stato(Richiesta **listaRichieste, Tecnico **listaTecnici) {
@@ -95,25 +102,26 @@ void test_verifica_assegnazione_tecnico_e_aggiornamento_stato(Richiesta **listaR
     }
 
     Tecnico *tecTest = *listaTecnici;
-    int id_tecnico = -1;
+    int id_test = -1;
     while (tecTest != NULL) {
         if (strcmp(tecTest->nome, "Test Tecnico") == 0 && tecTest->specializzazione == 2) {
-            id_tecnico = tecTest->id;
+            id_test = tecTest->id;
             break;
         }
         tecTest = tecTest->next;
     }
 
     // Controllo di sicurezza: se non abbiamo trovato i nodi appena creati, evitiamo di procedere
-    if (codice_richiesta == -1 || id_tecnico == -1) {
+    if (codice_richiesta == -1 || id_test == -1) {
         printf("Test fallito: Impossibile recuperare i nodi di test creati.\n");
         return;
     }
     
+    Data data_oracolo = {1, 1, 2026};
     // 3. Eseguiamo la funzione di aggiornamento sulla lista reale
     // Usiamo reqTest (che punta specificamente al nodo di test trovato prima) per verificare i dati
-    if (aggiornaStatoRichiesta(*listaRichieste, TEST_RICHIESTE_FILE, codice_richiesta, *listaTecnici, 1, id_tecnico, 9, 17, (Data){1, 1, 2026}) &&
-        reqTest->id_tecnico == id_tecnico &&
+    if (aggiornaStatoRichiesta(*listaRichieste, TEST_RICHIESTE_FILE, codice_richiesta, *listaTecnici, 1, id_test, 9, 17, (Data){1, 1, 2026}) &&
+        reqTest->id_tecnico == id_test &&
         reqTest->stato == 1 &&
         reqTest->oraInizio == 9 &&
         reqTest->oraFine == 17 &&
@@ -128,7 +136,7 @@ void test_verifica_assegnazione_tecnico_e_aggiornamento_stato(Richiesta **listaR
     
     // 4. Pulizia: rimuove la richiesta e il tecnico passando i doppi puntatori reali del main
     rimuoviRichiesta(listaRichieste, TEST_RICHIESTE_FILE, codice_richiesta);
-    rimuoviTecnico(listaTecnici, TEST_TECNICO_FILE, id_tecnico);
+    rimuoviTecnico(listaTecnici, TEST_TECNICO_FILE, id_test);
 }
 
 void test_report(Richiesta **listaRichieste, Tecnico **listaTecnici) {
@@ -198,20 +206,12 @@ void test_report(Richiesta **listaRichieste, Tecnico **listaTecnici) {
     int maxOreTecnico = 0;
     Tecnico *tecnicoAttivo = NULL;
     Tecnico *currentTecnico = *listaTecnici;
-    while (currentTecnico != NULL) {
-        int oreTotali = 0;
-        Richiesta *richiesta = *listaRichieste;
-        while (richiesta != NULL) {
-            if (richiesta->id_tecnico == currentTecnico->id && richiesta->stato == 3) {
-                int durata = richiesta->oraFine - richiesta->oraInizio;
-                if (durata > 0) {
-                    oreTotali += durata;
-                }
-            }
-            richiesta = richiesta->next;
-        }
 
-        currentTecnico->num_ore_lavorate = oreTotali;
+    while (currentTecnico != NULL) {
+        // Calcoli le ore al volo per il tecnico corrente
+        int oreTotali = orelavorate(*listaRichieste, currentTecnico);
+
+        // Il calcolo del massimo rimane identico usando la variabile locale oreTotali
         if (oreTotali > maxOreTecnico || tecnicoAttivo == NULL) {
             maxOreTecnico = oreTotali;
             tecnicoAttivo = currentTecnico;

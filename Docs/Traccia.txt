@@ -52,10 +52,10 @@ Casi di Test:
     ● Verifica della registrazione delle richieste          FATTO
     ● Test della registrazione dei tecnici                  FATTO
     ● Verifica dell’assegnazione corretta                   FATTO
-    ● Test della pianificazione e gestione conflitti        FATTO?
+    ● Test della pianificazione e gestione conflitti        FATTO
     ● Verifica aggiornamento stato                          FATTO
     ● Test della ricerca e filtri                           FATTO
-    ● Verifica dello storico interventi                     
+    ● Verifica dello storico interventi                     FATTO   
     ● Test della generazione dei report                     FATTO
 Report:
     ● Motivazione della Scelta dell'ADT: Illustrare perché specifici ADT sono stati             FATTO

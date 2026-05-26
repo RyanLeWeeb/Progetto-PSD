@@ -21,4 +21,3 @@ Tecnico piu' attivo: nessun tecnico trovato
 
 Aree con piu' problemi: nessuna richiesta registrata
 ===================================================
-
